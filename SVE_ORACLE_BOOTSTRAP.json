@@ -1,0 +1,49 @@
+{
+  "name": "SVE_ORACLE_BOOTSTRAP",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": {
+                "unit": "hours",
+                "value": 1
+              }
+            }
+          ]
+        }
+      },
+      "name": "Run Every Hour",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.1,
+      "position": [820, 440]
+    },
+    {
+      "parameters": {
+        "command": "cd /Users/kfitz/sentient_venture_engine && conda run -n sve_env python agents/market_intel_agents.py",
+        "options": {}
+      },
+      "name": "Execute Market Intel Crew",
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [1040, 440]
+    }
+  ],
+  "connections": {
+    "Run Every Hour": {
+      "main": [
+        [
+          {
+            "node": "Execute Market Intel Crew",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {},
+  "versionId": "c2a3b4d5-e6f7-g8h9-i0j1-k2l3m4n5o6p7"
+}
