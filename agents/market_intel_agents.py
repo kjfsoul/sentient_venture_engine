@@ -18,7 +18,9 @@ load_dotenv(PROJECT_ROOT / ".env")
 os.environ.setdefault("CREWAI_TELEMETRY_OPT_OUT", "1")
 if not os.getenv("SERPER_API_KEY") and os.getenv("SERPAPI_API_KEY"):
     # allow legacy SERPAPI key name to satisfy SerperDevTool
-    os.environ["SERPER_API_KEY"] = os.getenv("SERPAPI_API_KEY")
+    serpapi_key = os.getenv("SERPAPI_API_KEY")
+    if serpapi_key:
+        os.environ["SERPER_API_KEY"] = serpapi_key
 
 print("[agent] bootstrapped")
 print("[agent] cwd:", os.getcwd(), flush=True)
@@ -81,16 +83,16 @@ def initialize_llm() -> ChatOpenAI:
         try:
             print(f"[agent] initializing LLM: {model_name} (max_tokens={max_tokens}, temp={temperature})", flush=True)
             llm = ChatOpenAI(
-                # langchain-openai 0.0.8 parameters
-                openai_api_key=api_key,
-                openai_api_base="https://openrouter.ai/api/v1",
-                model_name=model_name,
+                # langchain-openai 0.2.x parameters
+                api_key=api_key,
+                base_url="https://openrouter.ai/api/v1",
+                model=model_name,
                 temperature=temperature,
-                max_tokens=max_tokens,
-                request_timeout=60,
+                model_kwargs={"max_tokens": max_tokens},
+                timeout=60,
             )
             # Smoke test with a tiny prompt to catch 402s early
-            _ = llm.predict("noop")
+            _ = llm.invoke([{"role": "user", "content": "test"}])
             print(f"[agent] LLM ready: {model_name}", flush=True)
             return llm
         except Exception as e:
@@ -330,14 +332,26 @@ class MarketIntelCrew:
             agent=self.pain_point_miner,
         )
 
-        # Execute tasks explicitly to avoid ambiguity in CrewAI return types
+        # Create crew and execute tasks using the proper CrewAI API
         print("[agent] executing trend task...", flush=True)
-        trend_raw = trend_task.execute()
-        print("[agent] trend task raw length:", len(str(trend_raw)), flush=True)
+        trend_crew = Crew(
+            agents=[self.trend_spotter],
+            tasks=[trend_task],
+            verbose=True
+        )
+        trend_result = trend_crew.kickoff()
+        trend_raw = str(trend_result)
+        print("[agent] trend task raw length:", len(trend_raw), flush=True)
 
         print("[agent] executing pain-point task...", flush=True)
-        pain_raw = pain_task.execute()
-        print("[agent] pain task raw length:", len(str(pain_raw)), flush=True)
+        pain_crew = Crew(
+            agents=[self.pain_point_miner],
+            tasks=[pain_task],
+            verbose=True
+        )
+        pain_result = pain_crew.kickoff()
+        pain_raw = str(pain_result)
+        print("[agent] pain task raw length:", len(pain_raw), flush=True)
 
         print("\n--- Processing and Storing Task Results ---", flush=True)
         trend_results = parse_task_output(trend_raw)
