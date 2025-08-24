@@ -21,7 +21,7 @@
     },
     {
       "parameters": {
-        "command": "cd /Users/kfitz/sentient_venture_engine && conda run -n sve_env python agents/market_intel_agents.py",
+        "command": "/Users/kfitz/sentient_venture_engine/run_agent.sh",
         "options": {}
       },
       "name": "Execute Market Intel Crew",
