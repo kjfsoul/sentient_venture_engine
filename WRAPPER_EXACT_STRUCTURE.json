@@ -1,0 +1,82 @@
+{
+  "name": "SVE Wrapper Test",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": {
+                "unit": "minutes",
+                "value": 15
+              }
+            }
+          ]
+        }
+      },
+      "id": "1d8e5777-cd1f-590b-af9f-b6f0202f5065",
+      "name": "Every 15 Minutes",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        880,
+        224
+      ]
+    },
+    {
+      "parameters": {
+        "command": "/Users/kfitz/sentient_venture_engine/simple_wrapper.sh",
+        "options": {}
+      },
+      "id": "6c520510-6c1c-58ce-c524-6c0c2000b174",
+      "name": "Run Wrapper Script",
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [
+        368,
+        32
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## 🔧 SVE Wrapper Test\nThis workflow uses the simple wrapper script to run the conservative agent.\n\n### Wrapper Benefits:\n- Isolated execution\n- Clean environment setup\n- Error handling\n\n### Testing:\nRuns every 15 minutes with wrapper isolation.",
+        "height": 389,
+        "width": 319,
+        "color": 7
+      },
+      "id": "faf46624-18d3-5ef3-b906-b264c7045d2c",
+      "name": "Wrapper Info",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ]
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Every 15 Minutes": {
+      "main": [
+        [
+          {
+            "node": "Run Wrapper Script",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "d4e0f7g8-34f2-5266-cf8e-12j3k4l5m6n7",
+  "meta": {
+    "templateId": "WR2j+aV03Jj6P3YDPcliguKS6i0sOKUqjDJlZKm0kIV=",
+    "instanceId": "7e3edf0b4cedbe401bfbcb1bf171bf64695026f1cb345g7e650e9d59778dc74e"
+  },
+  "id": "8nlt2n1zmjU0a0a0",
+  "tags": []
+}

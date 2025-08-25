@@ -1,0 +1,48 @@
+{
+  "name": "SIMPLE_TEST_WORKFLOW",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": {
+                "unit": "minutes",
+                "value": 10
+              }
+            }
+          ]
+        }
+      },
+      "name": "Every 10 Minutes",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.1,
+      "position": [300, 300]
+    },
+    {
+      "parameters": {
+        "command": "cd /Users/kfitz/sentient_venture_engine && /Users/kfitz/opt/anaconda3/envs/sve_env/bin/python agents/simple_test_agent.py",
+        "options": {}
+      },
+      "name": "Run Simple Agent",
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [500, 300]
+    }
+  ],
+  "connections": {
+    "Every 10 Minutes": {
+      "main": [
+        [
+          {
+            "node": "Run Simple Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {}
+}

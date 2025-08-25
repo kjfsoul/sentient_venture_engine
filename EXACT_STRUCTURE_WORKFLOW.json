@@ -1,0 +1,82 @@
+{
+  "name": "SVE Conservative Agent",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": {
+                "unit": "minutes",
+                "value": 10
+              }
+            }
+          ]
+        }
+      },
+      "id": "0d7e4666-bc0e-489a-9e8f-a5ef191f4954",
+      "name": "Schedule Trigger",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        880,
+        224
+      ]
+    },
+    {
+      "parameters": {
+        "command": "/Users/kfitz/opt/anaconda3/envs/sve_env/bin/python /Users/kfitz/sentient_venture_engine/agents/conservative_agent.py",
+        "options": {}
+      },
+      "id": "5b410409-5b0b-47bd-b413-5b9b1000a063",
+      "name": "Execute Conservative Agent",
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [
+        368,
+        32
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## 📊 SVE Market Intelligence Agent\nThis workflow runs the conservative market intelligence agent.\n\n### Features:\n- Automated market research\n- Trend analysis\n- Pain point identification\n- Supabase data storage\n\n### Status:\nAgent runs every 10 minutes for testing.",
+        "height": 389,
+        "width": 319,
+        "color": 6
+      },
+      "id": "eae35513-07c2-4de2-a795-a153b6934c1b",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ]
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Execute Conservative Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "c3df6461-23e1-4155-bee7-01c38547f329",
+  "meta": {
+    "templateId": "PT1i+zU92Ii5O2XCObkhfHJR5h9rNJTpiCIkYJk9jHU=",
+    "instanceId": "6d2dce9a3bdad3390afaba0ae060ae53584915f0ba234f6d539d8c48667cb63a"
+  },
+  "id": "7mks1m0yliTZ6z4z",
+  "tags": []
+}

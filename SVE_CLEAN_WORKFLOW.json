@@ -1,0 +1,55 @@
+{
+  "name": "SVE_CLEAN_WORKFLOW",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": {
+                "unit": "hours",
+                "value": 1
+              }
+            }
+          ]
+        }
+      },
+      "id": "schedule_trigger",
+      "name": "Hourly_Schedule",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.1,
+      "position": [240, 300]
+    },
+    {
+      "parameters": {
+        "command": "cd /Users/kfitz/sentient_venture_engine && /Users/kfitz/opt/anaconda3/envs/sve_env/bin/python agents/conservative_agent.py",
+        "options": {}
+      },
+      "id": "execute_agent",
+      "name": "Run_Agent",
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [460, 300]
+    }
+  ],
+  "connections": {
+    "Hourly_Schedule": {
+      "main": [
+        [
+          {
+            "node": "Run_Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": {},
+  "meta": {},
+  "pinData": {}
+}

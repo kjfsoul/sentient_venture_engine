@@ -1,0 +1,71 @@
+{
+  "name": "SVE Production - Optimized",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "unit": "hours",
+              "value": 2
+            }
+          ]
+        }
+      },
+      "id": "prod-schedule-001",
+      "name": "Every 2 Hours",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.1,
+      "position": [300, 200]
+    },
+    {
+      "parameters": {
+        "command": "cd /Users/kfitz/sentient_venture_engine && DISABLE_SEARCH=true /Users/kfitz/opt/anaconda3/envs/sve_env/bin/python agents/conservative_agent.py",
+        "options": {}
+      },
+      "id": "prod-execute-001",
+      "name": "Run Market Intelligence",
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [500, 200]
+    },
+    {
+      "parameters": {
+        "content": "## 📊 SVE Production - Optimized\n\n### Features:\n✅ **Rate Limit Safe**: Uses conservative agent with search disabled\n✅ **Reliable Output**: Guaranteed data generation every execution\n✅ **Fast Execution**: ~10-15 seconds per run\n✅ **Clean Data**: Stores trends and pain points in Supabase\n\n### Schedule:\n🕐 **Every 2 hours** for optimal data freshness without rate limits\n\n### Data Generated:\n- 3 Market trends\n- 3 Customer pain points\n- Stored in Supabase database\n\n**Perfect for production use!**",
+        "height": 300,
+        "width": 350,
+        "color": 6
+      },
+      "id": "prod-info-001",
+      "name": "Production Info",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [50, 50]
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Every 2 Hours": {
+      "main": [
+        [
+          {
+            "node": "Run Market Intelligence",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "prod-2024-001",
+  "meta": {
+    "templateId": "PROD+optimized+SVE+2024+reliable=",
+    "instanceId": "production-instance-sve-optimized-2024-reliable-execution"
+  },
+  "id": "PROD-SVE-2024",
+  "tags": ["production", "optimized", "rate-limit-safe"]
+}

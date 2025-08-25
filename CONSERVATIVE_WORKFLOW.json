@@ -1,0 +1,48 @@
+{
+  "name": "CONSERVATIVE_SVE_WORKFLOW",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": {
+                "unit": "hours",
+                "value": 1
+              }
+            }
+          ]
+        }
+      },
+      "name": "Hourly Trigger",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.1,
+      "position": [300, 300]
+    },
+    {
+      "parameters": {
+        "command": "cd /Users/kfitz/sentient_venture_engine && /Users/kfitz/opt/anaconda3/envs/sve_env/bin/python agents/conservative_agent.py",
+        "options": {}
+      },
+      "name": "Execute Conservative Agent",
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [500, 300]
+    }
+  ],
+  "connections": {
+    "Hourly Trigger": {
+      "main": [
+        [
+          {
+            "node": "Execute Conservative Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {}
+}

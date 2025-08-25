@@ -1,0 +1,82 @@
+{
+  "name": "SVE Market Intelligence Agent",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": {
+                "unit": "hours",
+                "value": 1
+              }
+            }
+          ]
+        }
+      },
+      "id": "0d7e4666-bc0e-489a-9e8f-a5ef191f4955",
+      "name": "Hourly Trigger",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        300,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "command": "/Users/kfitz/sentient_venture_engine/simple_wrapper.sh",
+        "options": {}
+      },
+      "id": "5b410409-5b0b-47bd-b413-5b9b1000a064",
+      "name": "Execute Market Intel Agent",
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [
+        500,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## 📊 SVE Market Intelligence Agent\nThis workflow runs the Sentient Venture Engine market intelligence agent every hour to gather trends and pain points.\n\n### Features:\n- Automated market research\n- AI-powered trend analysis\n- Pain point identification\n- Supabase data storage\n\n### Status:\nAgent runs hourly and stores results in the database.",
+        "height": 250,
+        "width": 300,
+        "color": 6
+      },
+      "id": "eae35513-07c2-4de2-a795-a153b6934c1c",
+      "name": "Workflow Info",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        0,
+        250
+      ]
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Hourly Trigger": {
+      "main": [
+        [
+          {
+            "node": "Execute Market Intel Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "c3df6461-23e1-4155-bee7-01c38547f330",
+  "meta": {
+    "templateId": "SVE1+zU92Ii5O2XCObkhfHJR5h9rNJTpiCIkYJk9jHV=",
+    "instanceId": "6d2dce9a3bdad3390afaba0ae060ae53584915f0ba234f6d539d8c48667cb64b"
+  },
+  "id": "SVEks1m0yliTZ6z5z",
+  "tags": []
+}

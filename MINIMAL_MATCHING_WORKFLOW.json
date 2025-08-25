@@ -1,0 +1,66 @@
+{
+  "name": "Minimal SVE Test",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": {
+                "unit": "minutes",
+                "value": 10
+              }
+            }
+          ]
+        }
+      },
+      "id": "0d7e4666-bc0e-489a-9e8f-a5ef191f4956",
+      "name": "Every 10 Minutes",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        368,
+        32
+      ]
+    },
+    {
+      "parameters": {
+        "command": "/Users/kfitz/opt/anaconda3/envs/sve_env/bin/python /Users/kfitz/sentient_venture_engine/agents/conservative_agent.py",
+        "options": {}
+      },
+      "id": "29963449-1dc1-487d-96f2-7ff0a5c3cd98",
+      "name": "Run Agent",
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [
+        560,
+        32
+      ]
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Every 10 Minutes": {
+      "main": [
+        [
+          {
+            "node": "Run Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "c3df6461-23e1-4155-bee7-01c38547f331",
+  "meta": {
+    "templateId": "MIN1+zU92Ii5O2XCObkhfHJR5h9rNJTpiCIkYJk9jHW=",
+    "instanceId": "6d2dce9a3bdad3390afaba0ae060ae53584915f0ba234f6d539d8c48667cb65c"
+  },
+  "id": "MINks1m0yliTZ6z6z",
+  "tags": []
+}

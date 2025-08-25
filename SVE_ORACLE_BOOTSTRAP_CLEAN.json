@@ -1,18 +1,19 @@
 {
-  "name": "SVE_ORACLE_BOOTSTRAP",
+  "name": "SVE_ORACLE_BOOTSTRAP_CLEAN",
   "nodes": [
     {
       "parameters": {
         "rule": {
           "interval": [
             {
-              "unit": "hours",
-              "value": 1
+              "field": {
+                "unit": "hours",
+                "value": 1
+              }
             }
           ]
         }
       },
-      "id": "0d7e4666-bc0e-489a-9e8f-a5ef191f4957",
       "name": "Run Every Hour",
       "type": "n8n-nodes-base.scheduleTrigger",
       "typeVersion": 1.1,
@@ -20,17 +21,15 @@
     },
     {
       "parameters": {
-        "command": "cd /Users/kfitz/sentient_venture_engine && DISABLE_SEARCH=true /Users/kfitz/opt/anaconda3/envs/sve_env/bin/python agents/conservative_agent.py",
+        "command": "cd /Users/kfitz/sentient_venture_engine && /Users/kfitz/opt/anaconda3/envs/sve_env/bin/python agents/market_intel_n8n.py",
         "options": {}
       },
-      "id": "29963449-1dc1-487d-96f2-7ff0a5c3cd99",
       "name": "Execute Market Intel Crew",
       "type": "n8n-nodes-base.executeCommand",
       "typeVersion": 1,
       "position": [1040, 440]
     }
   ],
-  "pinData": {},
   "connections": {
     "Run Every Hour": {
       "main": [
@@ -44,15 +43,7 @@
       ]
     }
   },
-  "active": false,
-  "settings": {
-    "executionOrder": "v1"
-  },
-  "versionId": "c3df6461-23e1-4155-bee7-01c38547f332",
-  "meta": {
-    "templateId": "SVE2+zU92Ii5O2XCObkhfHJR5h9rNJTpiCIkYJk9jHX=",
-    "instanceId": "6d2dce9a3bdad3390afaba0ae060ae53584915f0ba234f6d539d8c48667cb66d"
-  },
-  "id": "SVE2s1m0yliTZ6z7z",
-  "tags": []
+  "active": true,
+  "settings": {},
+  "versionId": "d3b4c5d6-e7f8-g9h0-i1j2-k3l4m5n6o7p8"
 }

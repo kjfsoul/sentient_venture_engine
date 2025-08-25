@@ -1,0 +1,64 @@
+{
+  "name": "SVE Wrapper - Fixed",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "unit": "hours",
+              "value": 1
+            }
+          ]
+        }
+      },
+      "id": "1d8e5777-cd1f-590b-af9f-b6f0202f5066",
+      "name": "Hourly Execution",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        368,
+        32
+      ]
+    },
+    {
+      "parameters": {
+        "command": "/Users/kfitz/sentient_venture_engine/simple_wrapper.sh",
+        "options": {}
+      },
+      "id": "6c520510-6c1c-58ce-c524-6c0c2000b175",
+      "name": "Execute Wrapper",
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [
+        560,
+        32
+      ]
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Hourly Execution": {
+      "main": [
+        [
+          {
+            "node": "Execute Wrapper",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "d4e0f7g8-34f2-5266-cf8e-12j3k4l5m6n8",
+  "meta": {
+    "templateId": "WRP4+aV03Jj6P3YDPcliguKS6i0sOKUqjDJlZKm0kIW=",
+    "instanceId": "7e3edf0b4cedbe401bfbcb1bf171bf64695026f1cb345g7e650e9d59778dc75f"
+  },
+  "id": "WRP4s1m0yliTZ6z9z",
+  "tags": []
+}

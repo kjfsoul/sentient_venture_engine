@@ -1,0 +1,48 @@
+{
+  "name": "TEST_WORKFLOW",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": {
+                "unit": "minutes",
+                "value": 5
+              }
+            }
+          ]
+        }
+      },
+      "name": "Every 5 Minutes",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.1,
+      "position": [300, 300]
+    },
+    {
+      "parameters": {
+        "command": "echo 'Hello from N8N test'",
+        "options": {}
+      },
+      "name": "Simple Test Command",
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [500, 300]
+    }
+  ],
+  "connections": {
+    "Every 5 Minutes": {
+      "main": [
+        [
+          {
+            "node": "Simple Test Command",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {}
+}

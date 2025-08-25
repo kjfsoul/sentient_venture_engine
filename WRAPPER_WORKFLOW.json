@@ -1,0 +1,50 @@
+{
+  "name": "WRAPPER_WORKFLOW",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": {
+                "unit": "hours",
+                "value": 1
+              }
+            }
+          ]
+        }
+      },
+      "id": "wrapper_trigger",
+      "name": "Trigger",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.1,
+      "position": [220, 280]
+    },
+    {
+      "parameters": {
+        "command": "/Users/kfitz/sentient_venture_engine/simple_wrapper.sh"
+      },
+      "id": "wrapper_execute",
+      "name": "Execute",
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [420, 280]
+    }
+  ],
+  "connections": {
+    "Trigger": {
+      "main": [
+        [
+          {
+            "node": "Execute",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {},
+  "staticData": {}
+}

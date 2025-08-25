@@ -1,0 +1,57 @@
+{
+  "name": "FRESH_SVE_WORKFLOW",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": {
+                "unit": "hours", 
+                "value": 1
+              }
+            }
+          ]
+        }
+      },
+      "id": "f1e2d3c4-b5a6-9788-1011-121314151617",
+      "name": "Schedule",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.1,
+      "position": [200, 260]
+    },
+    {
+      "parameters": {
+        "command": "/Users/kfitz/opt/anaconda3/envs/sve_env/bin/python /Users/kfitz/sentient_venture_engine/agents/conservative_agent.py",
+        "options": {}
+      },
+      "id": "a9b8c7d6-e5f4-3210-9876-543210fedcba",
+      "name": "Agent",
+      "type": "n8n-nodes-base.executeCommand", 
+      "typeVersion": 1,
+      "position": [400, 260]
+    }
+  ],
+  "connections": {
+    "Schedule": {
+      "main": [
+        [
+          {
+            "node": "Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": {},
+  "meta": {
+    "instanceId": "fresh-instance-001"
+  },
+  "pinData": {}
+}
