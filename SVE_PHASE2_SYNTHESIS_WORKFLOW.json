@@ -1,0 +1,146 @@
+{
+  "name": "SVE_PHASE2_SYNTHESIS",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "unit": "hours",
+              "value": 6
+            }
+          ]
+        }
+      },
+      "id": "p2-schedule-001",
+      "name": "Schedule Every 6 Hours",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.1,
+      "position": [200, 300]
+    },
+    {
+      "parameters": {
+        "command": "cd /Users/kfitz/sentient_venture_engine && DISABLE_SEARCH=true TEST_MODE=true /Users/kfitz/opt/anaconda3/envs/sve_env/bin/python agents/synthesis_n8n_agent.py",
+        "options": {}
+      },
+      "id": "p2-execute-001",
+      "name": "Execute Synthesis Analysis",
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [450, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Parse and format Phase 2 synthesis results\nconst output = JSON.parse($input.first().json.stdout);\n\n// Extract key synthesis insights\nconst synthesis = {\n  analysis_type: 'phase2_synthesis',\n  timestamp: new Date().toISOString(),\n  success: output.success,\n  \n  // Core metrics\n  metrics: {\n    opportunities_identified: output.analysis_summary?.opportunities_identified || 0,\n    business_models_designed: output.analysis_summary?.business_models_designed || 0,\n    hypotheses_generated: output.analysis_summary?.hypotheses_generated || 0,\n    average_confidence: output.analysis_summary?.average_confidence_score || 0\n  },\n  \n  // Market insights\n  market_insights: {\n    total_market_potential: output.synthesis_insights?.total_market_potential || 'Unknown',\n    combined_revenue_projection: output.synthesis_insights?.combined_revenue_projection || 0,\n    high_confidence_count: output.synthesis_insights?.high_confidence_opportunities || 0,\n    recommended_priority: output.synthesis_insights?.recommended_priority || 'Analysis needed'\n  },\n  \n  // Top opportunities\n  top_opportunities: (output.market_opportunities || []).slice(0, 3).map(opp => ({\n    title: opp.title,\n    market_size: opp.market_size,\n    confidence: opp.confidence_score,\n    time_to_market: opp.time_to_market\n  })),\n  \n  // Business models summary\n  business_models_summary: (output.business_models || []).map(bm => ({\n    model_name: bm.model_name,\n    revenue_streams: bm.revenue_streams,\n    year_3_projection: bm.projected_year_3_revenue\n  })),\n  \n  // Success factors\n  success_factors: output.synthesis_insights?.key_success_factors || [],\n  \n  // Execution status\n  execution_summary: {\n    mode: output.mode || 'production',\n    stored_successfully: output.analysis_summary?.stored_successfully || false,\n    processing_time: new Date().toISOString()\n  }\n};\n\nreturn synthesis;"
+      },
+      "id": "p2-process-001",
+      "name": "Process Synthesis Results",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [700, 300]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{$json.success}}",
+              "operation": "equal",
+              "value2": "true"
+            }
+          ]
+        }
+      },
+      "id": "p2-condition-001",
+      "name": "Check Success",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [950, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Generate summary report for successful synthesis\nconst data = $input.first().json;\n\nconst report = {\n  title: 'Phase 2 Synthesis Report',\n  generated_at: new Date().toISOString(),\n  \n  executive_summary: {\n    opportunities_discovered: data.metrics.opportunities_identified,\n    business_models_created: data.metrics.business_models_designed,\n    market_potential: data.market_insights.total_market_potential,\n    revenue_projection: `$${(data.market_insights.combined_revenue_projection / 1000000).toFixed(1)}M`,\n    confidence_level: `${(data.metrics.average_confidence * 100).toFixed(0)}%`\n  },\n  \n  key_findings: {\n    priority_recommendation: data.market_insights.recommended_priority,\n    high_confidence_opportunities: data.market_insights.high_confidence_count,\n    success_factors: data.success_factors.slice(0, 3)\n  },\n  \n  next_actions: [\n    'Review and validate top opportunities',\n    'Develop MVP for highest confidence opportunity',\n    'Conduct customer development interviews',\n    'Prepare investor pitch materials'\n  ],\n  \n  detailed_opportunities: data.top_opportunities,\n  business_models: data.business_models_summary\n};\n\nreturn { report, raw_data: data };"
+      },
+      "id": "p2-report-001",
+      "name": "Generate Success Report",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1200, 200]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Generate error report for failed synthesis\nconst data = $input.first().json;\n\nconst errorReport = {\n  title: 'Phase 2 Synthesis Error Report',\n  generated_at: new Date().toISOString(),\n  status: 'failed',\n  error_details: data.error || 'Unknown error occurred',\n  \n  recommended_actions: [\n    'Check system logs for detailed error information',\n    'Verify API credentials and connectivity',\n    'Retry synthesis in test mode',\n    'Contact system administrator if issues persist'\n  ],\n  \n  fallback_options: [\n    'Run in test mode for sample data',\n    'Use previous successful analysis results',\n    'Manual opportunity identification process'\n  ]\n};\n\nreturn { errorReport, raw_data: data };"
+      },
+      "id": "p2-error-001",
+      "name": "Generate Error Report",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1200, 400]
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Schedule Every 6 Hours": {
+      "main": [
+        [
+          {
+            "node": "Execute Synthesis Analysis",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Execute Synthesis Analysis": {
+      "main": [
+        [
+          {
+            "node": "Process Synthesis Results",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Process Synthesis Results": {
+      "main": [
+        [
+          {
+            "node": "Check Success",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Success": {
+      "main": [
+        [
+          {
+            "node": "Generate Success Report",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Generate Error Report",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "phase2-synthesis-v1",
+  "meta": {
+    "templateId": "phase2-synthesis-template",
+    "instanceId": "sve-phase2-instance"
+  },
+  "id": "SVE_PHASE2_SYNTHESIS",
+  "tags": ["phase2", "synthesis", "market-analysis", "business-models"]
+}

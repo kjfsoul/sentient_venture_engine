@@ -1,0 +1,79 @@
+{
+  "name": "SVE_MULTIMODAL_INTELLIGENCE",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "unit": "hours",
+              "value": 4
+            }
+          ]
+        }
+      },
+      "id": "mm-schedule-001",
+      "name": "Schedule Every 4 Hours",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.1,
+      "position": [200, 300]
+    },
+    {
+      "parameters": {
+        "command": "cd /Users/kfitz/sentient_venture_engine && DISABLE_SEARCH=true /Users/kfitz/opt/anaconda3/envs/sve_env/bin/python agents/multimodal_n8n_agent.py",
+        "options": {}
+      },
+      "id": "mm-execute-001",
+      "name": "Execute Multi-Modal Analysis",
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [450, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Parse and format multi-modal intelligence results\nconst output = JSON.parse($input.first().json.stdout);\n\n// Extract key insights\nconst insights = {\n  analysis_type: 'multimodal_intelligence',\n  timestamp: new Date().toISOString(),\n  success: output.success,\n  content_analyzed: {\n    images: output.content_summary?.total_images_analyzed || 0,\n    videos: output.content_summary?.total_videos_analyzed || 0,\n    total: output.content_summary?.total_content_pieces || 0\n  },\n  market_insights: output.unified_report?.unified_market_insights || {},\n  recommendations: output.unified_report?.actionable_recommendations || [],\n  cross_modal_trends: output.content_summary?.cross_modal_trends_found || 0,\n  shared_brands: output.content_summary?.shared_brands_identified || 0\n};\n\nreturn insights;"
+      },
+      "id": "mm-process-001",
+      "name": "Process Multi-Modal Results",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [700, 300]
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Schedule Every 4 Hours": {
+      "main": [
+        [
+          {
+            "node": "Execute Multi-Modal Analysis",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Execute Multi-Modal Analysis": {
+      "main": [
+        [
+          {
+            "node": "Process Multi-Modal Results",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "mm-workflow-v1",
+  "meta": {
+    "templateId": "multimodal-intelligence-template",
+    "instanceId": "sve-multimodal-instance"
+  },
+  "id": "SVE_MULTIMODAL_WORKFLOW",
+  "tags": ["visual-intelligence", "market-analysis", "multimodal"]
+}

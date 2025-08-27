@@ -27,9 +27,9 @@ except ValueError as e:
 
 try:
     # Attempt to initialize the LLM. This will fail if the key is invalid.
-    print("\n⏳ Initializing LLM with OpenRouter...")
+    print("\n⏳ Initializing LLM with OpenRouter (FREE MODEL)...")
     llm = ChatOpenAI(
-        model="anthropic/claude-3-opus",
+        model="mistralai/mistral-7b-instruct:free",  # FREE MODEL ONLY
         base_url="https://openrouter.ai/api/v1",
         api_key=api_key,
         default_headers={"HTTP-Referer": "https://sve.ai", "X-Title": "SVE"}

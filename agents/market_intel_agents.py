@@ -214,7 +214,8 @@ def run_market_analysis():
             
             # Handle case where agent hit limits
             if "Agent stopped due to iteration limit" in output or "time limit" in output:
-                print("⚠️ Agent hit execution limits, generating fallback data")
+                print("⚠️ Agent hit execution limits, using minimal fallback data")
+                logger.warning("Using fallback data - real analysis failed")
                 data = {
                     "trends": [
                         {"title": "AI-First SaaS Design", "summary": "New SaaS products built with AI-native architecture from ground up.", "url": "Fallback Analysis"},
@@ -324,12 +325,10 @@ def run_market_analysis():
             # Use fallback data even on error
             data = {
                 "trends": [
-                    {"title": "AI-First SaaS Design", "summary": "New SaaS products built with AI-native architecture from ground up.", "url": "Error Fallback"},
-                    {"title": "Creator Economy Platforms", "summary": "Specialized platforms for creator monetization and audience building.", "url": "Error Fallback"}
+                    {"title": "Analysis unavailable", "summary": "Fallback mode - real analysis required", "url": "System"}
                 ],
                 "pain_points": [
-                    {"title": "SaaS Tool Sprawl", "summary": "Companies struggling to manage and integrate multiple SaaS subscriptions.", "url": "Error Fallback"},
-                    {"title": "Creator Payment Delays", "summary": "Creators experiencing significant delays in platform revenue payments.", "url": "Error Fallback"}
+                    {"title": "Analysis unavailable", "summary": "Fallback mode - real analysis required", "url": "System"}
                 ]
             }
 
