@@ -3,7 +3,10 @@
 import os
 import sys
 import json
+import time
+import logging
 from pathlib import Path
+from functools import wraps
 
 # Add project root to Python path
 project_root = Path(__file__).parent.parent
@@ -23,7 +26,88 @@ except ImportError:
     print("❌ FATAL: Could not import 'get_secret'. Make sure 'security/api_key_manager.py' exists.")
     sys.exit(1)
 
+# Configure logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+# Rate limiting configuration
+RATE_LIMIT_CONFIG = {
+    'default': {'requests_per_minute': 10, 'burst_limit': 5},
+    'openrouter': {'requests_per_minute': 15, 'burst_limit': 8}
+}
+
+# Global rate limiting tracker
+rate_limit_tracker = {}
+
+def rate_limit(provider='default'):
+    """Rate limiting decorator for API calls"""
+    def decorator(func):
+        @wraps(func)
+        def wrapper(*args, **kwargs):
+            config = RATE_LIMIT_CONFIG.get(provider, RATE_LIMIT_CONFIG['default'])
+            requests_per_minute = config['requests_per_minute']
+            
+            # Initialize tracker for this provider
+            if provider not in rate_limit_tracker:
+                rate_limit_tracker[provider] = []
+            
+            now = time.time()
+            # Remove requests older than 1 minute
+            rate_limit_tracker[provider] = [
+                req_time for req_time in rate_limit_tracker[provider] 
+                if now - req_time < 60
+            ]
+            
+            # Check if we're at the rate limit
+            if len(rate_limit_tracker[provider]) >= requests_per_minute:
+                # Calculate wait time
+                oldest_request = min(rate_limit_tracker[provider])
+                wait_time = 60 - (now - oldest_request)
+                if wait_time > 0:
+                    print(f"⏳ Rate limit reached for {provider}, waiting {wait_time:.2f} seconds")
+                    time.sleep(wait_time)
+            
+            # Record this request
+            rate_limit_tracker[provider].append(now)
+            
+            # Call the function
+            return func(*args, **kwargs)
+        return wrapper
+    return decorator
+
+def exponential_backoff(max_retries=3, base_delay=1.0):
+    """Exponential backoff decorator for handling API failures"""
+    def decorator(func):
+        @wraps(func)
+        def wrapper(*args, **kwargs):
+            for attempt in range(max_retries):
+                try:
+                    return func(*args, **kwargs)
+                except Exception as e:
+                    if attempt == max_retries - 1:
+                        # Last attempt, re-raise the exception
+                        raise e
+                    
+                    # Check if this is a rate limit error
+                    error_str = str(e).lower()
+                    if 'rate' in error_str or '429' in error_str:
+                        # Exponential backoff with jitter
+                        delay = base_delay * (2 ** attempt) + (0.1 * (attempt + 1))
+                        jitter = 0.1 * delay * (2 * (hash(str(attempt)) % 1000) / 1000 - 1)
+                        total_delay = max(0, delay + jitter)
+                        
+                        print(f"⚠️ Rate limit hit on attempt {attempt + 1}, backing off for {total_delay:.2f} seconds")
+                        time.sleep(total_delay)
+                    else:
+                        # Non-rate limit error, re-raise immediately
+                        raise e
+            return None
+        return wrapper
+    return decorator
+
 # --- Global Initializations ---
+@rate_limit('openrouter')
+@exponential_backoff(max_retries=3)
 def initialize_llm():
     """Initializes the Language Model with explicit routing for OpenRouter using free models with fallback strategy."""
     
@@ -78,6 +162,9 @@ def initialize_llm():
         except Exception as e:
             print(f"⚠️ Model {model_name} failed: {str(e)[:100]}...")
             last_error = e
+            # Re-raise rate limit errors for backoff
+            if "rate" in str(e).lower() or "429" in str(e):
+                raise e
             continue
     
     # If all models fail, raise the last error

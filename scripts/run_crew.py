@@ -26,6 +26,13 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from dotenv import load_dotenv
 from supabase import create_client, Client
 
+# Import bulletproof LLM provider
+try:
+    from agents.bulletproof_llm_provider import get_bulletproof_llm
+    BULLETPROOF_LLM_AVAILABLE = True
+except ImportError:
+    BULLETPROOF_LLM_AVAILABLE = False
+
 # CrewAI imports
 from crewai import Agent, Task, Crew
 from langchain_openai import ChatOpenAI
@@ -96,7 +103,18 @@ class SynthesisCrewOrchestrator:
         logger.info("🤖 Synthesis Crew Orchestrator initialized")
 
     def _initialize_crew_llm(self) -> ChatOpenAI:
-        """Initialize LLM for CrewAI with ONLY free models"""
+        """Initialize LLM for CrewAI with BULLETPROOF guaranteed working provider"""
+        
+        # Use bulletproof provider if available
+        if BULLETPROOF_LLM_AVAILABLE:
+            try:
+                llm = get_bulletproof_llm()
+                logger.info("✅ Bulletproof LLM provider initialized for CrewAI")
+                return llm
+            except Exception as e:
+                logger.error(f"❌ Bulletproof LLM failed: {e}")
+        
+        # Fallback to original method
         openrouter_key = os.getenv('OPENROUTER_API_KEY')
         
         # STRICT: Only free models with ":free" in the name
@@ -142,7 +160,7 @@ class SynthesisCrewOrchestrator:
                 logger.warning(f"Model {model} failed: {e}")
                 continue
         
-        raise RuntimeError("All free LLM models failed to initialize for crew")
+        raise RuntimeError("All LLM initialization strategies failed - check API keys and network connection")
 
     def create_synthesis_crew(self, market_data: List[Dict[str, Any]]) -> Crew:
         """Create coordinated crew for synthesis workflow"""

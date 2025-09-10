@@ -28,6 +28,13 @@ from dotenv import load_dotenv
 from supabase import create_client, Client
 import requests
 
+# Import bulletproof LLM provider
+try:
+    from agents.bulletproof_llm_provider import get_bulletproof_llm
+    BULLETPROOF_LLM_AVAILABLE = True
+except ImportError:
+    BULLETPROOF_LLM_AVAILABLE = False
+
 # CrewAI imports
 from crewai import Agent, Task, Crew
 from langchain_openai import ChatOpenAI
@@ -800,7 +807,7 @@ class HypothesisFormulationAgent:
                 'category': 'Revenue',
                 'metric': 'Monthly Recurring Revenue (MRR)',
                 'measurement': 'Sum of all subscription revenue per month',
-                'target': str(business_model.financial_projections.get('year_1', {}).get('revenue', 500000) // 12),
+                'target': str(int(business_model.financial_projections.get('year_1', {}).get('revenue', 500000)) // 12),
                 'frequency': 'monthly'
             },
             {
@@ -924,7 +931,18 @@ class MarketOpportunityAgent:
         logger.info("🧠 Market Opportunity Agent initialized with advanced reasoning models")
 
     def _initialize_crew_llm(self) -> ChatOpenAI:
-        """Initialize LLM for CrewAI with ONLY free models"""
+        """Initialize LLM for CrewAI with BULLETPROOF guaranteed working provider"""
+        
+        # Use bulletproof provider if available
+        if BULLETPROOF_LLM_AVAILABLE:
+            try:
+                llm = get_bulletproof_llm()
+                logger.info("✅ Bulletproof LLM provider initialized for synthesis")
+                return llm
+            except Exception as e:
+                logger.error(f"❌ Bulletproof LLM failed: {e}")
+        
+        # Fallback to original method
         for model in self.free_models:
             try:
                 llm = ChatOpenAI(
@@ -951,7 +969,7 @@ class MarketOpportunityAgent:
                 logger.warning(f"Model {model} failed: {e}")
                 continue
         
-        raise RuntimeError("All free LLM models failed to initialize")
+        raise RuntimeError("All LLM initialization strategies failed - check API keys and network connection")
 
     def retrieve_market_intelligence(self, days_back: int = 7) -> List[Dict[str, Any]]:
         """Retrieve recent market intelligence data for analysis"""

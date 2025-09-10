@@ -1,5 +1,5 @@
 {
-  "name": "SVE_ORACLE_BOOTSTRAP",
+  "name": "SVE_PRODUCTION_ORACLE",
   "nodes": [
     {
       "parameters": {
@@ -48,11 +48,11 @@
   "settings": {
     "executionOrder": "v1"
   },
-  "versionId": "c3df6461-23e1-4155-bee7-01c38547f332",
+  "versionId": "c3df6461-23e1-4155-bee7-01c38547f333",
   "meta": {
-    "templateId": "SVE2+zU92Ii5O2XCObkhfHJR5h9rNJTpiCIkYJk9jHX=",
-    "instanceId": "6d2dce9a3bdad3390afaba0ae060ae53584915f0ba234f6d539d8c48667cb66d"
+    "templateId": "SVE2+zU92Ii5O2XCObkhfHJR5h9rNJTpiCIkYJk9jHY=",
+    "instanceId": "6d2dce9a3bdad3390afaba0ae060ae53584915f0ba234f6d539d8c48667cb66e"
   },
-  "id": "SVE2s1m0yliTZ6z7z",
+  "id": "SVE2s1m0yliTZ6z7y",
   "tags": []
 }
