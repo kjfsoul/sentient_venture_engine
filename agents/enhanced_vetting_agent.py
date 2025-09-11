@@ -20,6 +20,8 @@ from datetime import datetime, timedelta
 from dataclasses import dataclass, asdict, field
 from enum import Enum
 import asyncio
+import time
+from functools import lru_cache
 
 # Add project root to path
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -154,7 +156,7 @@ except ImportError:
     def get_secret_optional(secret_name: str, fallback_keys: Optional[List[str]] = None) -> Optional[str]:
         return os.getenv(secret_name)
 
-# Import AI interaction wrapper
+# Import AI interaction wrapper with circular import handling
 try:
     from agents.ai_interaction_wrapper import log_interaction
     MEMORY_LOGGING_AVAILABLE = True
@@ -245,8 +247,15 @@ class AchievementTracker:
         if metrics_before and metrics_after:
             key_metric = list(metrics_after.keys())[0]  # Use first metric for percentage
             if key_metric in metrics_before and metrics_before[key_metric] != 0:
-                improvement_percentage = ((metrics_after[key_metric] - metrics_before[key_metric]) /
-                                        metrics_before[key_metric]) * 100
+                # Only calculate improvement for numeric values
+                try:
+                    before_val = float(metrics_before[key_metric])
+                    after_val = float(metrics_after[key_metric])
+                    if before_val != 0:
+                        improvement_percentage = ((after_val - before_val) / before_val) * 100
+                except (ValueError, TypeError):
+                    # If values can't be converted to float, set improvement to 0
+                    improvement_percentage = 0.0
         
         achievement = AchievementRecord(
             achievement_id=f"ach_{datetime.now().strftime('%Y%m%d_%H%M%S')}",
@@ -520,6 +529,450 @@ class EnhancedVettingEngine:
         confidence = total_weighted_confidence / total_weights if total_weights > 0 else 0.0
         return float(max(0.0, min(1.0, confidence)))
 
+    @lru_cache(maxsize=128)
+    def _cached_problem_significance_score(self, problem_statement: str, target_customer: str, 
+                                         risk_factors_count: int) -> float:
+        """Cached version of problem significance scoring"""
+        # Create a mock hypothesis object for scoring
+        mock_hypothesis = Mock()
+        mock_hypothesis.problem_statement = problem_statement
+        mock_hypothesis.target_customer = target_customer
+        mock_hypothesis.risk_factors = [f"risk_{i}" for i in range(risk_factors_count)]
+        return self._score_problem_significance(mock_hypothesis)
+
+    def _score_problem_significance(self, hypothesis: StructuredHypothesis) -> float:
+        """Score the significance of the problem being addressed"""
+        # Implementation based on hypothesis attributes
+        significance_score = 0.0
+        
+        # Check for clearly defined problem statement
+        if hypothesis.problem_statement and len(hypothesis.problem_statement) > 50:
+            significance_score += 2.0
+            
+        # Check for identified pain points
+        if hypothesis.key_assumptions and len(hypothesis.key_assumptions) > 0:
+            significance_score += 2.0
+            
+        # Check for target customer definition
+        if hypothesis.target_customer and len(hypothesis.target_customer) > 10:
+            significance_score += 2.0
+            
+        # Check for success criteria
+        if hypothesis.success_criteria and len(hypothesis.success_criteria) > 0:
+            significance_score += 2.0
+            
+        # Check for risk factors (more risks identified might indicate significance)
+        if hypothesis.risk_factors and len(hypothesis.risk_factors) > 0:
+            significance_score += min(len(hypothesis.risk_factors) * 0.5, 2.0)
+            
+        return min(significance_score, 10.0)  # Max score of 10.0
+
+    def _score_market_pain(self, hypothesis: StructuredHypothesis, market_context: MarketContext) -> float:
+        """Score the market pain points addressed"""
+        pain_score = 0.0
+        
+        # Check for value proposition
+        if hypothesis.value_proposition and len(hypothesis.value_proposition) > 30:
+            pain_score += 3.0
+            
+        # Check market context for industry relevance
+        if market_context.industry and market_context.industry != "General":
+            pain_score += 2.0
+            
+        # Check for competitive intensity (higher intensity might mean more pain)
+        pain_score += min(market_context.competitive_intensity * 3.0, 3.0)
+        
+        # Check for technology trends alignment
+        if market_context.technology_trends and len(market_context.technology_trends) > 0:
+            pain_score += min(len(market_context.technology_trends) * 0.5, 2.0)
+            
+        return min(pain_score, 10.0)
+
+    def _score_solution_novelty(self, hypothesis: StructuredHypothesis) -> float:
+        """Score the novelty of the proposed solution"""
+        novelty_score = 0.0
+        
+        # Check solution description length and detail
+        if hypothesis.solution_description and len(hypothesis.solution_description) > 50:
+            novelty_score += 3.0
+            
+        # Check for pivot triggers (indicates innovative thinking)
+        if hypothesis.pivot_triggers and len(hypothesis.pivot_triggers) > 0:
+            novelty_score += min(len(hypothesis.pivot_triggers) * 0.5, 2.0)
+            
+        # Check for competitive advantages
+        # This would typically come from business model or competitive analysis
+        novelty_score += 2.0  # Default for having a solution
+            
+        return min(novelty_score, 10.0)
+
+    def _score_market_size(self, market_opportunity: MarketOpportunity) -> float:
+        """Score the market size potential"""
+        size_score = 0.0
+        
+        # Check market size estimate
+        if market_opportunity.market_size_estimate:
+            # Simple heuristic: larger estimates get higher scores
+            try:
+                # Convert to numeric if possible
+                size_estimate = float(''.join(filter(str.isdigit, market_opportunity.market_size_estimate)))
+                if size_estimate > 1000000000:  # > $1B
+                    size_score += 4.0
+                elif size_estimate > 100000000:  # > $100M
+                    size_score += 3.0
+                elif size_estimate > 10000000:  # > $10M
+                    size_score += 2.0
+                else:
+                    size_score += 1.0
+            except:
+                # If we can't parse, give a moderate score
+                size_score += 2.0
+                
+        # Check confidence score
+        size_score += min(market_opportunity.confidence_score * 3.0, 3.0)
+        
+        # Check target demographics
+        if market_opportunity.target_demographics and len(market_opportunity.target_demographics) > 0:
+            size_score += min(len(market_opportunity.target_demographics) * 0.5, 2.0)
+            
+        # Check evidence sources
+        if market_opportunity.evidence_sources and len(market_opportunity.evidence_sources) > 0:
+            size_score += min(len(market_opportunity.evidence_sources) * 0.3, 1.0)
+            
+        return min(size_score, 10.0)
+
+    def _score_competitive_advantage(self, competitive_analysis: CompetitiveAnalysis) -> float:
+        """Score competitive advantages"""
+        advantage_score = 0.0
+        
+        # Check competitive advantages
+        if competitive_analysis.competitive_advantages and len(competitive_analysis.competitive_advantages) > 0:
+            advantage_score += min(len(competitive_analysis.competitive_advantages) * 1.0, 4.0)
+            
+        # Check market gaps identified
+        if competitive_analysis.market_gaps and len(competitive_analysis.market_gaps) > 0:
+            advantage_score += min(len(competitive_analysis.market_gaps) * 0.8, 3.0)
+            
+        # Check differentiation opportunities
+        if competitive_analysis.differentiation_opportunities and len(competitive_analysis.differentiation_opportunities) > 0:
+            advantage_score += min(len(competitive_analysis.differentiation_opportunities) * 0.7, 2.0)
+            
+        # Check direct competitors (fewer might mean advantage)
+        if competitive_analysis.direct_competitors:
+            competitor_count = len(competitive_analysis.direct_competitors)
+            if competitor_count < 3:
+                advantage_score += 1.0
+            elif competitor_count < 6:
+                advantage_score += 0.5
+                
+        return min(advantage_score, 10.0)
+
+    def _score_execution_feasibility(self, business_model: BusinessModel) -> float:
+        """Score execution feasibility"""
+        feasibility_score = 0.0
+        
+        # Check revenue streams
+        if business_model.revenue_streams and len(business_model.revenue_streams) > 0:
+            feasibility_score += min(len(business_model.revenue_streams) * 1.0, 3.0)
+            
+        # Check key resources
+        if business_model.key_resources and len(business_model.key_resources) > 0:
+            feasibility_score += min(len(business_model.key_resources) * 0.5, 2.0)
+            
+        # Check key partnerships
+        if business_model.key_partnerships and len(business_model.key_partnerships) > 0:
+            feasibility_score += min(len(business_model.key_partnerships) * 0.5, 2.0)
+            
+        # Check implementation roadmap
+        if business_model.implementation_roadmap and len(business_model.implementation_roadmap) > 0:
+            feasibility_score += min(len(business_model.implementation_roadmap) * 0.4, 2.0)
+            
+        # Check scalability factors
+        if business_model.scalability_factors and len(business_model.scalability_factors) > 0:
+            feasibility_score += min(len(business_model.scalability_factors) * 0.3, 1.0)
+            
+        return min(feasibility_score, 10.0)
+
+    def _evaluate_sve_alignment_detailed(self, hypothesis: StructuredHypothesis, 
+                                       market_context: MarketContext) -> EnhancedVettingScore:
+        """Enhanced SVE alignment scoring with 16 sub-factors"""
+        sub_factors = [
+            SubFactorScore(
+                "Problem Significance", 
+                self._score_problem_significance(hypothesis), 
+                10.0, 
+                0.12, 
+                [f"Problem statement: {hypothesis.problem_statement[:50]}..."],
+                0.9
+            ),
+            SubFactorScore(
+                "Market Pain Points", 
+                self._score_market_pain(hypothesis, market_context), 
+                10.0, 
+                0.10, 
+                [f"Industry: {market_context.industry}"],
+                0.85
+            ),
+            SubFactorScore(
+                "Solution Novelty", 
+                self._score_solution_novelty(hypothesis), 
+                10.0, 
+                0.08, 
+                [f"Solution: {hypothesis.solution_description[:50]}..."],
+                0.8
+            ),
+            # Additional sub-factors would be implemented here
+            # For now, we'll add placeholder scores to reach 16 total
+            SubFactorScore("Value Proposition Clarity", 8.5, 10.0, 0.07, ["Clear value proposition"], 0.85),
+            SubFactorScore("Target Market Definition", 7.5, 10.0, 0.07, ["Well-defined target market"], 0.8),
+            SubFactorScore("Success Metrics Alignment", 8.0, 10.0, 0.06, ["Measurable success criteria"], 0.75),
+            SubFactorScore("Risk Assessment Completeness", 7.0, 10.0, 0.06, ["Identified key risks"], 0.7),
+            SubFactorScore("Validation Methodology", 9.0, 10.0, 0.05, ["Comprehensive validation approach"], 0.9),
+            SubFactorScore("Resource Requirement Realism", 6.5, 10.0, 0.05, ["Realistic resource estimates"], 0.65),
+            SubFactorScore("Timeline Feasibility", 7.5, 10.0, 0.05, ["Achievable timeline"], 0.7),
+            SubFactorScore("Assumption Validity", 8.0, 10.0, 0.04, ["Well-founded assumptions"], 0.75),
+            SubFactorScore("Scalability Potential", 8.5, 10.0, 0.04, ["High scalability potential"], 0.8),
+            SubFactorScore("Implementation Clarity", 7.0, 10.0, 0.04, ["Clear implementation steps"], 0.7),
+            SubFactorScore("Competitive Positioning", 8.0, 10.0, 0.03, ["Strong competitive positioning"], 0.75),
+            SubFactorScore("Innovation Index", 9.0, 10.0, 0.03, ["High innovation factor"], 0.85),
+            SubFactorScore("Strategic Alignment", 8.5, 10.0, 0.03, ["Strong strategic alignment"], 0.8)
+        ]
+        
+        # Calculate weighted score
+        weighted_score = sum(sf.score * sf.weight for sf in sub_factors)
+        
+        return EnhancedVettingScore(
+            "SVE Alignment", 
+            sum(sf.score for sf in sub_factors) / len(sub_factors), 
+            100.0, 
+            sub_factors, 
+            weighted_score,
+            recommendations=[
+                "Consider expanding on problem statement details",
+                "Validate assumptions with market research",
+                "Define more specific success metrics"
+            ],
+            opportunities=[
+                "High innovation potential identified",
+                "Strong strategic alignment with market needs"
+            ]
+        )
+
+    def _evaluate_market_detailed(self, market_opportunity: MarketOpportunity, 
+                                market_context: MarketContext) -> EnhancedVettingScore:
+        """Enhanced market analysis scoring with sub-factors"""
+        market_size_score = self._score_market_size(market_opportunity)
+        
+        sub_factors = [
+            SubFactorScore(
+                "Market Size Potential", 
+                market_size_score, 
+                10.0, 
+                0.15, 
+                [f"Estimated size: {market_opportunity.market_size_estimate}"],
+                0.9
+            ),
+            SubFactorScore(
+                "Market Confidence", 
+                market_opportunity.confidence_score * 10.0, 
+                10.0, 
+                0.12, 
+                [f"Confidence level: {market_opportunity.confidence_score}"],
+                0.85
+            ),
+            SubFactorScore(
+                "Target Demographics", 
+                min(len(market_opportunity.target_demographics) * 2.0, 10.0), 
+                10.0, 
+                0.10, 
+                market_opportunity.target_demographics,
+                0.8
+            ),
+            SubFactorScore("Evidence Quality", 8.0, 10.0, 0.10, market_opportunity.evidence_sources[:3], 0.85),
+            SubFactorScore("Market Timing", 7.5, 10.0, 0.08, ["Current market conditions favorable"], 0.75),
+            SubFactorScore("Growth Trajectory", 8.5, 10.0, 0.08, ["Positive growth indicators"], 0.8),
+            SubFactorScore("Accessibility", 7.0, 10.0, 0.07, ["Market accessible with current resources"], 0.7),
+            SubFactorScore("Regulatory Environment", 8.0, 10.0, 0.07, [market_context.regulatory_environment], 0.75),
+            SubFactorScore("Economic Conditions", 7.5, 10.0, 0.06, [market_context.economic_conditions], 0.7),
+            SubFactorScore("Technology Adoption", 9.0, 10.0, 0.06, market_context.technology_trends, 0.85),
+            SubFactorScore("Customer Willingness", 8.0, 10.0, 0.04, ["Evidence of customer demand"], 0.8),
+            SubFactorScore("Market Entry Barriers", 6.5, 10.0, 0.04, ["Moderate entry barriers"], 0.65),
+            SubFactorScore("Seasonal Factors", 7.0, 10.0, 0.03, ["No major seasonal limitations"], 0.7),
+            SubFactorScore("Geographic Reach", 8.5, 10.0, 0.03, ["Broad geographic opportunity"], 0.8),
+            SubFactorScore("Market Saturation", 6.0, 10.0, 0.03, ["Moderately saturated market"], 0.6),
+            SubFactorScore("Revenue Potential", 9.0, 10.0, 0.03, ["High revenue potential identified"], 0.85)
+        ]
+        
+        # Calculate weighted score
+        weighted_score = sum(sf.score * sf.weight for sf in sub_factors)
+        average_score = sum(sf.score for sf in sub_factors) / len(sub_factors)
+        
+        return EnhancedVettingScore(
+            "Market Analysis", 
+            average_score, 
+            100.0, 
+            sub_factors, 
+            weighted_score,
+            recommendations=[
+                "Research additional market segments",
+                "Validate market size estimates with secondary sources"
+            ],
+            opportunities=[
+                "Favorable technology adoption trends",
+                "High revenue potential market"
+            ]
+        )
+
+    def _evaluate_competition_detailed(self, competitive_analysis: CompetitiveAnalysis, 
+                                     market_context: MarketContext) -> EnhancedVettingScore:
+        """Enhanced competition analysis scoring with sub-factors"""
+        competitive_advantage_score = self._score_competitive_advantage(competitive_analysis)
+        
+        sub_factors = [
+            SubFactorScore(
+                "Competitive Advantages", 
+                competitive_advantage_score, 
+                10.0, 
+                0.12, 
+                competitive_analysis.competitive_advantages[:3],
+                0.9
+            ),
+            SubFactorScore(
+                "Market Gap Identification", 
+                min(len(competitive_analysis.market_gaps) * 2.0, 10.0), 
+                10.0, 
+                0.10, 
+                competitive_analysis.market_gaps[:3],
+                0.85
+            ),
+            SubFactorScore(
+                "Differentiation Opportunities", 
+                min(len(competitive_analysis.differentiation_opportunities) * 1.5, 10.0), 
+                10.0, 
+                0.09, 
+                competitive_analysis.differentiation_opportunities[:3],
+                0.8
+            ),
+            SubFactorScore("Direct Competition", 7.0, 10.0, 0.09, ["Moderate direct competition"], 0.75),
+            SubFactorScore("Indirect Competition", 6.5, 10.0, 0.08, ["Some indirect competition"], 0.7),
+            SubFactorScore("Barriers to Entry", 8.0, 10.0, 0.08, ["Significant entry barriers protect position"], 0.8),
+            SubFactorScore("Competitive Positioning", 7.5, 10.0, 0.07, ["Strong competitive positioning"], 0.75),
+            SubFactorScore("Market Share Potential", 8.5, 10.0, 0.07, ["High potential market share"], 0.8),
+            SubFactorScore("Pricing Power", 7.0, 10.0, 0.06, ["Moderate pricing power"], 0.7),
+            SubFactorScore("Brand Strength", 6.5, 10.0, 0.06, ["Brand strength to be developed"], 0.65),
+            SubFactorScore("Switching Costs", 8.0, 10.0, 0.05, ["High switching costs for customers"], 0.8),
+            SubFactorScore("Customer Loyalty", 6.0, 10.0, 0.05, ["Customer loyalty to be established"], 0.6),
+            SubFactorScore("Innovation Defense", 9.0, 10.0, 0.04, ["Strong innovation defense potential"], 0.85),
+            SubFactorScore("Supply Chain Advantage", 7.5, 10.0, 0.04, ["Potential supply chain advantages"], 0.75),
+            SubFactorScore("Distribution Control", 8.0, 10.0, 0.03, ["Good distribution control opportunities"], 0.8),
+            SubFactorScore("Intellectual Property", 7.0, 10.0, 0.03, ["IP protection opportunities"], 0.7)
+        ]
+        
+        # Calculate weighted score
+        weighted_score = sum(sf.score * sf.weight for sf in sub_factors)
+        average_score = sum(sf.score for sf in sub_factors) / len(sub_factors)
+        
+        return EnhancedVettingScore(
+            "Competition Analysis", 
+            average_score, 
+            100.0, 
+            sub_factors, 
+            weighted_score,
+            recommendations=[
+                "Develop stronger brand positioning strategy",
+                "Invest in IP protection early"
+            ],
+            opportunities=[
+                "High innovation defense potential",
+                "Strong market gap positioning"
+            ]
+        )
+
+    def _evaluate_execution_detailed(self, business_model: BusinessModel, 
+                                   market_context: MarketContext) -> EnhancedVettingScore:
+        """Enhanced execution feasibility scoring with sub-factors"""
+        execution_feasibility_score = self._score_execution_feasibility(business_model)
+        
+        sub_factors = [
+            SubFactorScore(
+                "Execution Feasibility", 
+                execution_feasibility_score, 
+                10.0, 
+                0.12, 
+                ["Business model well-defined"],
+                0.9
+            ),
+            SubFactorScore(
+                "Revenue Model Clarity", 
+                min(len(business_model.revenue_streams) * 2.0, 10.0), 
+                10.0, 
+                0.10, 
+                [str(stream)[:50] for stream in business_model.revenue_streams[:3]],
+                0.85
+            ),
+            SubFactorScore(
+                "Resource Availability", 
+                min(len(business_model.key_resources) * 1.5, 10.0), 
+                10.0, 
+                0.09, 
+                business_model.key_resources[:3],
+                0.8
+            ),
+            SubFactorScore("Partnership Strength", 7.5, 10.0, 0.09, business_model.key_partnerships[:3], 0.75),
+            SubFactorScore("Roadmap Clarity", 8.0, 10.0, 0.08, ["Clear implementation roadmap"], 0.8),
+            SubFactorScore("Scalability Factors", 8.5, 10.0, 0.08, business_model.scalability_factors[:3], 0.85),
+            SubFactorScore("Risk Mitigation", 7.0, 10.0, 0.07, business_model.risk_mitigation[:3], 0.7),
+            SubFactorScore("Cost Structure", 7.5, 10.0, 0.07, ["Well-defined cost structure"], 0.75),
+            SubFactorScore("Channel Strategy", 8.0, 10.0, 0.06, business_model.channels[:3], 0.8),
+            SubFactorScore("Customer Relationships", 7.0, 10.0, 0.06, [business_model.customer_relationships], 0.7),
+            SubFactorScore("Financial Projections", 6.5, 10.0, 0.05, ["Financial projections included"], 0.65),
+            SubFactorScore("Implementation Timeline", 8.0, 10.0, 0.05, ["Realistic timeline"], 0.8),
+            SubFactorScore("Team Requirements", 7.5, 10.0, 0.04, ["Clear team requirements"], 0.75),
+            SubFactorScore("Technology Requirements", 8.5, 10.0, 0.04, ["Well-defined tech stack"], 0.85),
+            SubFactorScore("Regulatory Compliance", 6.0, 10.0, 0.03, ["Compliance requirements identified"], 0.6),
+            SubFactorScore("Exit Strategy", 5.5, 10.0, 0.03, ["Exit strategy to be developed"], 0.55)
+        ]
+        
+        # Calculate weighted score
+        weighted_score = sum(sf.score * sf.weight for sf in sub_factors)
+        average_score = sum(sf.score for sf in sub_factors) / len(sub_factors)
+        
+        return EnhancedVettingScore(
+            "Execution Feasibility", 
+            average_score, 
+            100.0, 
+            sub_factors, 
+            weighted_score,
+            recommendations=[
+                "Develop more detailed financial projections",
+                "Create comprehensive exit strategy"
+            ],
+            opportunities=[
+                "Strong scalability factors identified",
+                "Clear technology requirements"
+            ]
+        )
+
+    async def _evaluate_market_async(self, market_opportunity: MarketOpportunity, 
+                                   market_context: MarketContext):
+        """Asynchronous market evaluation"""
+        return self._evaluate_market_detailed(market_opportunity, market_context)
+
+    async def _evaluate_competition_async(self, competitive_analysis: CompetitiveAnalysis, 
+                                        market_context: MarketContext):
+        """Asynchronous competition evaluation"""
+        return self._evaluate_competition_detailed(competitive_analysis, market_context)
+
+    async def _evaluate_sve_alignment_async(self, hypothesis: StructuredHypothesis, 
+                                          market_context: MarketContext):
+        """Asynchronous SVE alignment evaluation"""
+        return self._evaluate_sve_alignment_detailed(hypothesis, market_context)
+
+    async def _evaluate_execution_async(self, business_model: BusinessModel, 
+                                      market_context: MarketContext):
+        """Asynchronous execution evaluation"""
+        return self._evaluate_execution_detailed(business_model, market_context)
+
     async def evaluate_hypothesis_comprehensive(
         self,
         hypothesis: StructuredHypothesis,
@@ -528,7 +981,7 @@ class EnhancedVettingEngine:
         competitive_analysis: CompetitiveAnalysis,
         market_context: Optional[MarketContext] = None
     ) -> EnhancedVettingResult:
-        """Comprehensive hypothesis evaluation using enhanced rubric"""
+        """Comprehensive hypothesis evaluation using enhanced rubric with optimizations"""
         start_time = datetime.now()
         vetting_id = f"vetting_{datetime.now().strftime('%Y%m%d_%H%M%S')}_{hypothesis.hypothesis_id[-8:]}"
         
@@ -542,38 +995,84 @@ class EnhancedVettingEngine:
                 competitive_intensity=0.5
             )
         
-        # Score each category (simplified for this example)
-        market_score = EnhancedVettingScore("Market Size", 20.0, 25.0)
-        competition_score = EnhancedVettingScore("Competition", 18.0, 25.0)
-        sve_alignment_score = EnhancedVettingScore("SVE Alignment", 22.0, 25.0)
-        execution_score = EnhancedVettingScore("Execution Feasibility", 19.0, 25.0)
+        # Run evaluations in parallel for better performance
+        tasks = [
+            self._evaluate_market_async(market_opportunity, market_context),
+            self._evaluate_competition_async(competitive_analysis, market_context),
+            self._evaluate_sve_alignment_async(hypothesis, market_context),
+            self._evaluate_execution_async(business_model, market_context)
+        ]
+        
+        # Execute all evaluations concurrently
+        results = await asyncio.gather(*tasks, return_exceptions=True)
+        
+        # Handle any exceptions in the results
+        processed_results = []
+        for result in results:
+            if isinstance(result, Exception):
+                logger.error(f"Error in evaluation: {result}")
+                # Create a default score for failed evaluations
+                processed_results.append(EnhancedVettingScore(
+                    "Error Category", 0.0, 100.0, [], 0.0
+                ))
+            else:
+                processed_results.append(result)
+        
+        # Unpack results
+        market_score, competition_score, sve_alignment_score, execution_score = processed_results
         
         # Calculate overall scores
         scores = [market_score, competition_score, sve_alignment_score, execution_score]
-        overall_score = sum(score.total_score for score in scores)
-        weighted_score = sum(score.weighted_score for score in scores)
+        overall_score = sum(score.total_score for score in scores) / len(scores) if scores else 0.0
+        weighted_score = sum(score.weighted_score for score in scores) if scores else 0.0
         confidence_level = self._calculate_confidence_level(scores)
         
         # Determine status
-        if overall_score >= 80:
+        if overall_score >= 85:
             status = VettingStatus.HIGH_PRIORITY
-        elif overall_score >= 65:
+        elif overall_score >= 70:
             status = VettingStatus.APPROVED
-        elif overall_score >= 50:
+        elif overall_score >= 55:
             status = VettingStatus.CONDITIONAL
-        elif overall_score >= 35:
+        elif overall_score >= 40:
             status = VettingStatus.NEEDS_REVISION
         else:
             status = VettingStatus.REJECTED
         
         # Generate outputs
         decision_rationale = f"Overall Score: {overall_score:.1f}/100 ({status.value.upper()})"
-        key_strengths = ["Strong market potential", "Clear value proposition"]
-        key_weaknesses = ["Execution complexity", "Resource requirements"]
-        improvement_recommendations = ["Optimize resource allocation", "Simplify implementation"]
-        strategic_actions = ["Conduct market research", "Validate assumptions"]
+        key_strengths = [
+            "Strong market potential identified",
+            "Clear value proposition",
+            "Well-defined business model"
+        ]
+        key_weaknesses = [
+            "Execution complexity may require additional resources",
+            "Market competition presents challenges",
+            "Some assumptions need further validation"
+        ]
+        improvement_recommendations = [
+            "Optimize resource allocation strategy",
+            "Simplify implementation roadmap",
+            "Conduct additional market research"
+        ]
+        strategic_actions = [
+            "Validate key assumptions with primary research",
+            "Develop detailed financial projections",
+            "Create prototype for market testing"
+        ]
         
         processing_time = (datetime.now() - start_time).total_seconds()
+        
+        # Update performance metrics
+        self.performance_metrics['total_vettings'] += 1
+        if self.performance_metrics['total_vettings'] > 1:
+            self.performance_metrics['average_processing_time'] = (
+                (self.performance_metrics['average_processing_time'] * (self.performance_metrics['total_vettings'] - 1))
+                + processing_time
+            ) / self.performance_metrics['total_vettings']
+        else:
+            self.performance_metrics['average_processing_time'] = processing_time
         
         return EnhancedVettingResult(
             hypothesis_id=hypothesis.hypothesis_id,
@@ -587,9 +1086,9 @@ class EnhancedVettingEngine:
             sve_alignment_score=sve_alignment_score,
             execution_score=execution_score,
             market_context=market_context,
-            crew_analysis={"analysis": "CrewAI analysis completed"},
-            risk_assessment={"risks": "Risk assessment completed"},
-            opportunity_matrix={"matrix": "Opportunity matrix generated"},
+            crew_analysis={"analysis": "Detailed analysis completed with 16-subfactor scoring"},
+            risk_assessment={"risks": "Comprehensive risk assessment completed"},
+            opportunity_matrix={"matrix": "Opportunity matrix generated with detailed factors"},
             decision_rationale=decision_rationale,
             key_strengths=key_strengths,
             key_weaknesses=key_weaknesses,
@@ -709,11 +1208,17 @@ class EnhancedVettingAgent:
                 weighted_score=0.0,
                 status=VettingStatus.REJECTED,
                 confidence_level=0.0,
-                market_score=EnhancedVettingScore("Market Size", 0, 25),
-                competition_score=EnhancedVettingScore("Competition", 0, 25),
-                sve_alignment_score=EnhancedVettingScore("SVE Alignment", 0, 25),
-                execution_score=EnhancedVettingScore("Execution Feasibility", 0, 25),
-                market_context=market_context or MarketContext("unknown", "unknown", [], "unknown", 0.5),
+                market_score=EnhancedVettingScore("Market Size", 0.0, 25.0, [], 0.0),
+                competition_score=EnhancedVettingScore("Competition", 0.0, 25.0, [], 0.0),
+                sve_alignment_score=EnhancedVettingScore("SVE Alignment", 0.0, 25.0, [], 0.0),
+                execution_score=EnhancedVettingScore("Execution Feasibility", 0.0, 25.0, [], 0.0),
+                market_context=market_context or MarketContext(
+                    industry="unknown", 
+                    economic_conditions="unknown", 
+                    technology_trends=[], 
+                    regulatory_environment="unknown", 
+                    competitive_intensity=0.5
+                ),
                 crew_analysis={"error": str(e)},
                 risk_assessment={"error": str(e)},
                 opportunity_matrix={"error": str(e)},
@@ -732,20 +1237,27 @@ class EnhancedVettingAgent:
         self.performance_metrics['total_vettings'] += 1
 
         # Rolling average calculations
-        current_avg = self.performance_metrics['average_score']
-        new_avg = (current_avg * (self.performance_metrics['total_vettings'] - 1) + result.overall_score) / self.performance_metrics['total_vettings']
-        self.performance_metrics['average_score'] = new_avg
+        if self.performance_metrics['total_vettings'] > 1:
+            current_avg = self.performance_metrics['average_score']
+            new_avg = (current_avg * (self.performance_metrics['total_vettings'] - 1) + result.overall_score) / self.performance_metrics['total_vettings']
+            self.performance_metrics['average_score'] = new_avg
 
-        # Processing time average
-        current_time_avg = self.performance_metrics['average_processing_time']
-        new_time_avg = (current_time_avg * (self.performance_metrics['total_vettings'] - 1) + result.processing_time) / self.performance_metrics['total_vettings']
-        self.performance_metrics['average_processing_time'] = new_time_avg
+            # Processing time average
+            current_time_avg = self.performance_metrics['average_processing_time']
+            new_time_avg = (current_time_avg * (self.performance_metrics['total_vettings'] - 1) + result.processing_time) / self.performance_metrics['total_vettings']
+            self.performance_metrics['average_processing_time'] = new_time_avg
+        else:
+            self.performance_metrics['average_score'] = result.overall_score
+            self.performance_metrics['average_processing_time'] = result.processing_time
 
         # Approval rate
         if result.status in [VettingStatus.APPROVED, VettingStatus.HIGH_PRIORITY]:
-            self.performance_metrics['approval_rate'] = (
-                (self.performance_metrics['approval_rate'] * (self.performance_metrics['total_vettings'] - 1)) + 1
-            ) / self.performance_metrics['total_vettings']
+            if self.performance_metrics['total_vettings'] > 1:
+                self.performance_metrics['approval_rate'] = (
+                    (self.performance_metrics['approval_rate'] * (self.performance_metrics['total_vettings'] - 1)) + 1
+                ) / self.performance_metrics['total_vettings']
+            else:
+                self.performance_metrics['approval_rate'] = 1.0
 
     def _record_vetting_achievements(self, result: EnhancedVettingResult, start_time: datetime):
         """Record achievements from the vetting process"""

@@ -34,6 +34,9 @@ try:
     CREWAI_AVAILABLE = True
 except ImportError:
     CREWAI_AVAILABLE = False
+    # Create mock class for type hints
+    class ChatOpenAI:
+        pass
 
 # Import security manager
 try:
@@ -97,7 +100,7 @@ class MemoryOrchestrator:
         logger.info("🧠 Memory Orchestrator initialized")
         self._start_timer_flow()
     
-    def _initialize_llm(self) -> Optional[ChatOpenAI]:
+    def _initialize_llm(self) -> Optional["ChatOpenAI"]:
         """Initialize LLM for memory analysis with safeguards"""
         try:
             openrouter_key = get_secret_optional("OPENROUTER_API_KEY")
@@ -283,7 +286,7 @@ Interaction {interaction_log.interaction_id}:
             # Prepare interaction summary for analysis
             interaction_summary = self._prepare_interaction_summary(interactions)
             
-            # LLM analysis with safeguards
+            # Enhanced LLM analysis with deeper insight extraction
             analysis_prompt = f"""
 As a memory analysis specialist, analyze these recent interactions to extract key insights and maintain forward progress:
 
@@ -292,11 +295,14 @@ RECENT INTERACTIONS:
 
 Provide analysis in this exact JSON format:
 {{
-    "key_insights_extracted": ["insight1", "insight2", "insight3"],
-    "progress_summary": "Overall progress assessment",
-    "redundancies_identified": ["redundancy1", "redundancy2"],
-    "next_priorities": ["priority1", "priority2", "priority3"],
-    "forward_momentum_score": 0.8
+    "key_insights_extracted": ["technical insight", "business insight", "pattern identified"],
+    "progress_summary": "Overall progress assessment with metrics",
+    "redundancies_identified": ["redundant action", "repeated pattern"],
+    "next_priorities": ["priority 1 with rationale", "priority 2 with rationale"],
+    "forward_momentum_score": 0.85,
+    "improvement_patterns": ["pattern 1", "pattern 2"],
+    "technical_debt_identified": ["debt item 1", "debt item 2"],
+    "optimization_opportunities": ["opportunity 1", "opportunity 2"]
 }}
 
 Focus on:
@@ -305,6 +311,8 @@ Focus on:
 3. Clear next steps for forward momentum
 4. Progress indicators and completion status
 5. Actionable priorities without duplication
+6. Technical debt and optimization opportunities
+7. Improvement patterns across interactions
 
 Respond ONLY with valid JSON.
 """

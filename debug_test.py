@@ -1,18 +1,18 @@
 #!/usr/bin/env python3
 """
-Quick test to verify the enhanced vetting agent is working
+Debug test to identify where the error is occurring
 """
 
 import os
 import sys
 import asyncio
+import traceback
 
 # Add project root to path
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 try:
     from agents.enhanced_vetting_agent import EnhancedVettingAgent, MarketContext
-    print("✅ Enhanced Vetting Agent imported successfully")
     
     # Create mock data classes with all required attributes
     class MockStructuredHypothesis:
@@ -121,30 +121,39 @@ try:
         agent = EnhancedVettingAgent()
         print("✅ Enhanced Vetting Agent initialized")
         
-        # Perform vetting
-        result = await agent.vet_hypothesis_enhanced(
-            hypothesis, opportunity, business_model, competitive_analysis, market_context
-        )
-        
-        print(f"✅ Vetting completed successfully!")
-        print(f"   Overall Score: {result.overall_score:.1f}/100")
-        print(f"   Status: {result.status.value}")
-        print(f"   Confidence Level: {result.confidence_level:.2f}")
-        print(f"   Processing Time: {result.processing_time:.2f}s")
-        
-        # Show some sub-factor details
-        if result.sve_alignment_score.sub_factors:
-            print(f"   SVE Alignment Sub-Factors: {len(result.sve_alignment_score.sub_factors)}")
-            for i, factor in enumerate(result.sve_alignment_score.sub_factors[:3]):
-                print(f"     {i+1}. {factor.name}: {factor.score:.1f}/10.0")
-        
-        return True
+        try:
+            # Perform vetting
+            result = await agent.vet_hypothesis_enhanced(
+                hypothesis, opportunity, business_model, competitive_analysis, market_context
+            )
+            
+            print(f"✅ Vetting completed successfully!")
+            print(f"   Overall Score: {result.overall_score:.1f}/100")
+            print(f"   Status: {result.status.value}")
+            print(f"   Confidence Level: {result.confidence_level:.2f}")
+            print(f"   Processing Time: {result.processing_time:.2f}s")
+            
+            # Show some sub-factor details
+            if result.sve_alignment_score.sub_factors:
+                print(f"   SVE Alignment Sub-Factors: {len(result.sve_alignment_score.sub_factors)}")
+                for i, factor in enumerate(result.sve_alignment_score.sub_factors[:3]):
+                    print(f"     {i+1}. {factor.name}: {factor.score:.1f}/10.0")
+            
+            return True
+        except Exception as e:
+            print(f"❌ Error during vetting: {e}")
+            traceback.print_exc()
+            return False
 
     if __name__ == "__main__":
-        asyncio.run(test_vetting())
-        print("\n🎉 Quick test completed successfully!")
+        result = asyncio.run(test_vetting())
+        if result:
+            print("\n🎉 Debug test completed successfully!")
+        else:
+            print("\n❌ Debug test failed!")
+        sys.exit(0 if result else 1)
         
 except Exception as e:
     print(f"❌ Error: {e}")
-    import traceback
     traceback.print_exc()
+    sys.exit(1)
