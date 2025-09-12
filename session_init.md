@@ -1,39 +1,90 @@
-# SVE Enhanced Vetting Agent - Developer Onboarding Session
+# SVE Project - Developer Session Initialization
 
-## Session Overview
+## Current Project State Overview
 
-Welcome to the SVE Enhanced Vetting Agent system! This onboarding session will walk you through the key components, processes, and best practices for working with our hypothesis evaluation system that integrates automated memory orchestration and achievement tracking.
+Welcome to the Sentient Venture Engine (SVE) project! This session initialization document provides a comprehensive overview of the current system state, recent developments, and key components. This document is continuously updated to reflect the latest project status and should be your starting point for understanding the current application state.
 
-## System Architecture Review
+**Last Updated**: January 2025  
+**Project Status**: Active Development with Production-Ready Components  
+**Key Achievement**: Task 1.1 Causal Analysis Agent - COMPLETED AND PRODUCTION READY
 
-### Core Components
+## 🎯 Current Project Status & Recent Achievements
 
-1. **Enhanced Vetting Agent** ([agents/enhanced_vetting_agent.py](file:///Users/kfitz/sentient_venture_engine/agents/enhanced_vetting_agent.py))
-   - Main agent class for hypothesis evaluation
-   - Achievement tracking integration
-   - Multi-dimensional scoring system
+### **MAJOR MILESTONE COMPLETED**: Task 1.1 Causal Analysis Agent ✅
+- **Status**: Production Ready
+- **Location**: `agents/analysis_agents.py` (CausalAnalysisAgent class)
+- **Capabilities**: DoWhy, EconML, causal-learn integration for hypothesis success/failure analysis
+- **Documentation**: `task_updates/task_1_1_causal_analysis/FINAL_STATUS_UPDATE.md`
 
-2. **Memory Orchestration System** ([agents/memory_orchestrator.py](file:///Users/kfitz/sentient_venture_engine/agents/memory_orchestrator.py))
-   - Automated interaction logging
-   - Periodic memory analysis (every 2 interactions)
-   - Forward initiative tracking
+### **PROJECT ORGANIZATION COMPLETED**: Systematic Root Cleanup ✅
+- **62 files** systematically organized from root directory
+- **Pattern-based analysis** applied to identify development processes
+- **Professional structure** achieved with logical groupings
+- **Documentation**: `COMPREHENSIVE_CLEANUP_SUMMARY.md`
 
-3. **AI Interaction Wrapper** ([agents/ai_interaction_wrapper.py](file:///Users/kfitz/sentient_venture_engine/agents/ai_interaction_wrapper.py))
-   - Automatic addendum system
-   - Context extraction and logging
+## 🏗️ System Architecture Overview
 
-## Key Processes Walkthrough
+### **Core Agent Systems**
 
-### 1. Vetting Process Workflow
+1. **Causal Analysis Agent** ⭐ **PRODUCTION READY**
+   - **File**: `agents/analysis_agents.py` (CausalAnalysisAgent class)
+   - **Purpose**: Identifies causal factors for hypothesis success/failure
+   - **Integration**: DoWhy, EconML, causal-learn libraries
+   - **Database**: Stores insights in `causal_insights` table
+   - **Cost-Optimized**: Uses OpenRouter free models (Qwen, Deepseek, Minimax)
 
-The Enhanced Vetting Agent evaluates business hypotheses using a comprehensive scoring system:
+2. **Enhanced Vetting Agent**
+   - **File**: `agents/enhanced_vetting_agent.py`
+   - **Purpose**: Multi-dimensional hypothesis evaluation
+   - **Features**: 16-subfactor scoring system, achievement tracking
+   - **Status**: Operational with documented improvements
+
+3. **Memory Orchestration System**
+   - **File**: `agents/memory_orchestrator.py`
+   - **Purpose**: Automated interaction logging and analysis
+   - **Features**: Periodic analysis, forward initiative tracking
+   - **Integration**: Works with AI interaction wrapper
+
+4. **GitHub Code Analysis Agent**
+   - **File**: `agents/analysis_agents.py` (GitHubCodeAnalysisAgent class)
+   - **Purpose**: Technology trend analysis from GitHub repositories
+   - **Features**: Market intelligence extraction, trend identification
+
+## 🔄 Key Processes & Workflows
+
+### **1. Causal Analysis Workflow** ⭐ **NEW & PRODUCTION READY**
+
+Analyze causal factors driving hypothesis success/failure:
 
 ```python
-# Initialize the agent
+# Initialize the causal analysis agent
+from agents.analysis_agents import CausalAnalysisAgent
+agent = CausalAnalysisAgent(test_mode=False)  # Use True for testing
+
+# Run comprehensive causal analysis
+results = agent.run_causal_analysis()
+
+# Generate recommendations for synthesis crew
+recommendations = agent.generate_synthesis_recommendations()
+```
+
+**Key Features**:
+- **Causal DAG**: 15 variables, 19 causal relationships
+- **Multiple Methods**: DoWhy, EconML, causal-learn integration
+- **Counterfactual Analysis**: "What if" scenario modeling
+- **Database Integration**: Stores insights in `causal_insights` table
+- **Cost-Effective**: Prioritizes free OpenRouter models
+
+### **2. Enhanced Vetting Process**
+
+Comprehensive hypothesis evaluation with multi-dimensional scoring:
+
+```python
+# Initialize enhanced vetting agent
 from agents.enhanced_vetting_agent import EnhancedVettingAgent
 agent = EnhancedVettingAgent()
 
-# Perform vetting
+# Perform enhanced vetting
 result = await agent.vet_hypothesis_enhanced(
     hypothesis, 
     market_opportunity, 
@@ -43,17 +94,17 @@ result = await agent.vet_hypothesis_enhanced(
 )
 ```
 
-### 2. Memory Logging Integration
+### **3. Memory System Integration**
 
-Every AI interaction is automatically logged through our memory system:
+Automated interaction logging and analysis:
 
 ```python
-# Manual logging (when needed)
+# Memory logging (automated)
 from agents.memory_orchestrator import log_interaction_auto
 
 interaction_id = log_interaction_auto(
     user_query="User request",
-    ai_response="AI response",
+    ai_response="AI response", 
     key_actions=["action1", "action2"],
     progress_indicators=["indicator1"],
     memory_updates=["update1"],
@@ -62,176 +113,312 @@ interaction_id = log_interaction_auto(
 )
 ```
 
-### 3. Automated Addendum System
+### **4. GitHub Code Intelligence**
 
-All responses are enhanced with memory status information:
-
-```python
-# Add memory addendum to responses
-from agents.ai_interaction_wrapper import add_memory_addendum
-
-enhanced_response = add_memory_addendum("AI response")
-```
-
-### 4. Achievement Tracking
-
-The system automatically records significant improvements:
+Technology trend analysis from repository data:
 
 ```python
-# Record achievements
-achievement = agent.achievement_tracker.record_achievement(
-    category="Scoring Enhancement",
-    title="SVE Alignment Scoring Revolution",
-    description="Transformed SVE alignment scoring",
-    metrics_before={'sve_alignment_score': 3.9, 'scoring_accuracy': 60.0},
-    metrics_after={'sve_alignment_score': 25.0, 'scoring_accuracy': 95.0},
-    business_impact="500% improvement in hypothesis quality assessment accuracy",
-    technical_details={
-        'algorithm_upgrade': 'Semantic analysis with keyword expansion',
-        'sub_factors_added': '16 comprehensive sub-factors implemented'
-    }
-)
+# Run code intelligence analysis
+from agents.analysis_agents import GitHubCodeAnalysisAgent
+agent = GitHubCodeAnalysisAgent()
+results = agent.run_code_analysis()
 ```
 
-## Quick Start Guide
+## 🚀 Quick Start Guide
 
-### 1. Environment Setup
+### **1. Environment Setup & Verification**
 
 ```bash
 # Activate conda environment
 conda activate sve_env
 
-# Verify dependencies
-pip list | grep -E "(crewai|langchain|supabase)"
+# Verify core dependencies
+pip list | grep -E "(crewai|langchain|supabase|dowhy|econml)"
 
-# Check CrewAI installation specifically
-python -c "from crewai import Agent; print('CrewAI installed successfully')"
+# Test causal analysis agent (PRIORITY)
+python task_updates/task_1_1_causal_analysis/test_with_env_fix.py
+
+# Check environment variables
+python -c "import os; print('✅ SUPABASE_URL:', 'Set' if os.getenv('SUPABASE_URL') else '❌ Missing')"
 ```
 
-### 2. Testing the System
+### **2. Testing Current Systems**
 
 ```bash
-# Run quick vetting test
-cd /Users/kfitz/sentient_venture_engine
-python quick_test_vetting.py
+# Test causal analysis agent (PRODUCTION READY)
+python task_updates/task_1_1_causal_analysis/test_with_env_fix.py
+
+# Test enhanced vetting system
+python archived_development/test_scripts/quick_test_vetting.py
 
 # Test achievement tracking
-python test_achievement_tracking.py
+python archived_development/test_scripts/test_achievement_tracking.py
+
+# Validate causal libraries installation
+python archived_development/test_scripts/test_causal_libraries.py
 ```
 
-### 3. Reviewing Memory Logs
+### **3. Review Current Project State**
 
 ```bash
-# Check interaction logs
-ls /Users/kfitz/sentient_venture_engine/memory_logs/interaction_*.json
+# Check recent achievements and status
+cat task_updates/task_1_1_causal_analysis/FINAL_STATUS_UPDATE.md
 
-# Check memory analyses
-ls /Users/kfitz/sentient_venture_engine/memory_logs/memory_analysis_*.json
+# Review project organization
+cat COMPREHENSIVE_CLEANUP_SUMMARY.md
 
-# View project memory system
-cat /Users/kfitz/sentient_venture_engine/PROJECT_MEMORY_SYSTEM.md
+# Check memory system status
+cat PROJECT_MEMORY_SYSTEM.md
+
+# Review task completion status
+ls task_updates/
 ```
 
-## Best Practices
+### **4. Install Missing Dependencies (If Needed)**
 
-### Memory System Usage
+```bash
+# Install causal inference libraries for full functionality
+pip install dowhy==0.11.1 econml==0.15.0 causal-learn==0.1.3.8
 
-1. Always use the automated logging system rather than manual logging
-2. Leverage the timer flow system for periodic analysis
-3. Utilize the automated addendum feature for consistent status reporting
-4. Monitor forward momentum scores to track progress
+# Update requirements if needed
+pip install -r requirements.txt
+```
 
-### Achievement Tracking
+## 📋 Current Development Priorities & Best Practices
 
-1. Record achievements immediately after significant improvements
-2. Include comprehensive before/after metrics
-3. Provide detailed technical implementation details
-4. Export achievements to the memory system regularly
+### **Immediate Priorities**
 
-### Error Handling
+1. **Causal Analysis Integration**: Deploy Task 1.1 Causal Analysis Agent to production
+2. **Task 1.2 Implementation**: Continue with next phase of causal analysis tasks
+3. **System Integration**: Integrate causal insights with existing SVE workflow
+4. **Performance Monitoring**: Monitor causal analysis impact on TTFD reduction
 
-1. Implement graceful degradation for all external services
-2. Use fallback mechanisms for LLM initialization
-3. Handle None values properly in Supabase client initialization
-4. Log all errors with appropriate context
+### **Development Best Practices**
 
-## Key File Locations
+#### **Memory Process Compliance**
+1. **File Organization**: Use `task_updates/` for all task-related files
+2. **Pattern Recognition**: Group related files by development process
+3. **Documentation**: Create comprehensive indexes and summaries
+4. **Historical Preservation**: Maintain all development context
 
-- Main agent: [/Users/kfitz/sentient_venture_engine/agents/enhanced_vetting_agent.py](file:///Users/kfitz/sentient_venture_engine/agents/enhanced_vetting_agent.py)
-- Memory orchestrator: [/Users/kfitz/sentient_venture_engine/agents/memory_orchestrator.py](file:///Users/kfitz/sentient_venture_engine/agents/memory_orchestrator.py)
-- AI interaction wrapper: [/Users/kfitz/sentient_venture_engine/agents/ai_interaction_wrapper.py](file:///Users/kfitz/sentient_venture_engine/agents/ai_interaction_wrapper.py)
-- Memory logs: `/Users/kfitz/sentient_venture_engine/memory_logs/`
-- Project memory system: [/Users/kfitz/sentient_venture_engine/PROJECT_MEMORY_SYSTEM.md](file:///Users/kfitz/sentient_venture_engine/PROJECT_MEMORY_SYSTEM.md)
-- Automated memory guide: [/Users/kfitz/sentient_venture_engine/AUTOMATED_MEMORY_SYSTEM_GUIDE.md](file:///Users/kfitz/sentient_venture_engine/AUTOMATED_MEMORY_SYSTEM_GUIDE.md)
+#### **Causal Analysis System**
+1. **Cost-Effectiveness**: Prioritize OpenRouter free models (Qwen, Deepseek, Minimax)
+2. **Graceful Degradation**: Handle missing libraries and services gracefully
+3. **Environment Variables**: Use `.env.example` as template, never commit secrets
+4. **Testing**: Always test in test_mode=True before production deployment
 
-## Next Steps for New Developers
+#### **Code Quality Standards**
+1. **Error Handling**: Implement comprehensive fallback mechanisms
+2. **Documentation**: Include inline comments and comprehensive docstrings
+3. **Testing**: Create test scripts for all major functionality
+4. **Integration**: Ensure seamless integration with existing CrewAI framework
 
-1. Run the quick test script to verify system functionality:
+### **Memory System Integration**
 
-   ```bash
-   cd /Users/kfitz/sentient_venture_engine
-   python quick_test_vetting.py
-   ```
+#### **Automated Logging**
+- Use automated logging system for all AI interactions
+- Leverage timer flow system for periodic analysis
+- Monitor forward momentum scores to track progress
 
-2. Examine the memory logs to understand the automated logging system:
+#### **Achievement Tracking**
+- Record achievements immediately after significant improvements
+- Include comprehensive before/after metrics
+- Export achievements to memory system regularly
 
-   ```bash
-   ls /Users/kfitz/sentient_venture_engine/memory_logs/
-   ```
+## 📁 Key File Locations & Project Structure
 
-3. Test the achievement tracking system:
+### **Core Agent Implementations**
+- **Causal Analysis Agent**: `agents/analysis_agents.py` (CausalAnalysisAgent class) ⭐ **PRODUCTION READY**
+- **Enhanced Vetting Agent**: `agents/enhanced_vetting_agent.py`
+- **Memory Orchestrator**: `agents/memory_orchestrator.py`
+- **AI Interaction Wrapper**: `agents/ai_interaction_wrapper.py`
 
-   ```bash
-   python test_achievement_tracking.py
-   ```
+### **Causal Analysis Support Files**
+- **Feature Extraction**: `agents/causal_analysis_methods.py`
+- **Inference Methods**: `agents/causal_inference_methods.py`
+- **Documentation**: `task_updates/task_1_1_causal_analysis/CAUSAL_ANALYSIS_AGENT_DOCUMENTATION.md`
+- **Test Scripts**: `task_updates/task_1_1_causal_analysis/test_with_env_fix.py`
 
-4. Review the automated memory system guide:
+### **Project Organization**
+- **Task Files**: `task_updates/` (organized by task)
+- **Development History**: `archived_development/` (organized by process)
+- **Memory Logs**: `memory_logs/`
+- **Configuration**: `.env` (use `.env.example` as template)
 
-   ```bash
-   cat /Users/kfitz/sentient_venture_engine/AUTOMATED_MEMORY_SYSTEM_GUIDE.md
-   ```
+### **Key Documentation Files**
+- **Project Memory System**: `PROJECT_MEMORY_SYSTEM.md`
+- **Automated Memory Guide**: `AUTOMATED_MEMORY_SYSTEM_GUIDE.md`
+- **Comprehensive Cleanup Summary**: `COMPREHENSIVE_CLEANUP_SUMMARY.md`
+- **Task Organization Index**: `task_updates/TASK_ORGANIZATION_INDEX.md`
 
-5. Check existing achievement records in PROJECT_MEMORY_SYSTEM.md:
+### **Database Schema**
+- **Supabase Schema**: `config/supabase_schema.sql`
+- **Key Tables**: `causal_insights`, `validation_results`, `hypotheses`, `human_feedback`
 
-   ```bash
-   grep -A 20 "ENHANCED VETTING AGENT ACHIEVEMENTS" /Users/kfitz/sentient_venture_engine/PROJECT_MEMORY_SYSTEM.md
-   ```
+## 🎯 Next Steps for New Developers
 
-## Troubleshooting Common Issues
+### **1. Verify Current System Status**
+```bash
+# Test the production-ready causal analysis agent
+python task_updates/task_1_1_causal_analysis/test_with_env_fix.py
 
-### Circular Import Issues
+# Check project organization status
+cat COMPREHENSIVE_CLEANUP_SUMMARY.md
 
+# Review recent achievements
+cat task_updates/task_1_1_causal_analysis/FINAL_STATUS_UPDATE.md
+```
+
+### **2. Understand Current Architecture**
+```bash
+# Review causal analysis documentation
+cat task_updates/task_1_1_causal_analysis/CAUSAL_ANALYSIS_AGENT_DOCUMENTATION.md
+
+# Check task organization
+cat task_updates/TASK_ORGANIZATION_INDEX.md
+
+# Review development process insights
+cat archived_development/ARCHIVED_DEVELOPMENT_INDEX.md
+```
+
+### **3. Test System Components**
+```bash
+# Test enhanced vetting system
+python archived_development/test_scripts/quick_test_vetting.py
+
+# Test achievement tracking
+python archived_development/test_scripts/test_achievement_tracking.py
+
+# Verify memory system
+ls memory_logs/
+```
+
+### **4. Review Memory System Integration**
+```bash
+# Check project memory system
+cat PROJECT_MEMORY_SYSTEM.md
+
+# Review automated memory guide
+cat AUTOMATED_MEMORY_SYSTEM_GUIDE.md
+
+# Check recent memory updates
+ls memory_logs/interaction_*.json | tail -5
+```
+
+### **5. Understand Development Patterns**
+```bash
+# Review development process patterns identified
+cat archived_development/ARCHIVED_DEVELOPMENT_INDEX.md
+
+# Check workflow evolution
+ls archived_development/sve_workflows/
+
+# Review testing strategies
+ls archived_development/test_scripts/
+```
+
+## 🔧 Troubleshooting Common Issues
+
+### **Environment & Dependencies**
+
+#### **Causal Libraries Missing**
+- **Problem**: DoWhy, EconML, causal-learn not installed
+- **Solution**: `pip install dowhy==0.11.1 econml==0.15.0 causal-learn==0.1.3.8`
+- **Note**: Agent works with graceful degradation if libraries missing
+
+#### **Environment Variables**
+- **Problem**: Supabase connection failures
+- **Solution**: Ensure `.env` file exists with proper credentials (use `.env.example` as template)
+- **Test**: `python -c "import os; print(os.getenv('SUPABASE_URL'))"`
+
+#### **LangChain Compatibility**
+- **Problem**: Pydantic version conflicts
+- **Solution**: Use updated requirements.txt with compatible versions
+- **Fallback**: Agent works without LangChain (limited LLM functionality)
+
+### **System Integration Issues**
+
+#### **Circular Import Issues**
 - **Problem**: Circular imports between memory orchestrator and AI interaction wrapper
 - **Solution**: Use string annotations and TYPE_CHECKING imports
 
-### LLM Initialization Failures
-
-- **Problem**: ChatOpenAI initialization errors
-- **Solution**: Implement proper fallback mechanisms and error handling
-
-### Supabase Client Issues
-
+#### **Supabase Client Issues**
 - **Problem**: Supabase client initialization with proxy errors
-- **Solution**: Add proper error handling and None checks
+- **Solution**: Use `get_secret_optional()` and proper error handling
 
-## Staying Current on Updates
+#### **Test Mode vs Production**
+- **Problem**: Different behavior in test vs production mode
+- **Solution**: Always test with `test_mode=True` first, then deploy with `test_mode=False`
 
-1. Regularly check the PROJECT_MEMORY_SYSTEM.md for new achievements and system improvements
-2. Monitor the memory_logs directory for new interaction patterns
-3. Review the AUTOMATED_MEMORY_SYSTEM_GUIDE.md for updates to the memory system
-4. Run tests periodically to ensure system functionality:
+## 📈 Staying Current on Updates
 
-   ```bash
-   python quick_test_vetting.py
-   python test_achievement_tracking.py
-   ```
+### **Memory System Integration**
+The session initialization process should always reference the memory system for the most current state:
 
-## Questions to Ask Your Mentor
+1. **Check PROJECT_MEMORY_SYSTEM.md** for latest achievements and system improvements
+2. **Monitor memory_logs/** directory for new interaction patterns and analyses
+3. **Review AUTOMATED_MEMORY_SYSTEM_GUIDE.md** for memory system updates
+4. **Check task_updates/** for recent task completions and status updates
 
-1. What are the current priorities for enhancing the vetting scoring system?
-2. How are new achievements identified and tracked in the system?
-3. What are the key metrics we're monitoring for system performance?
-4. How does the memory system integrate with other SVE components?
-5. What are the upcoming features planned for the achievement tracking system?
+### **Regular System Validation**
+```bash
+# Run current system tests
+python task_updates/task_1_1_causal_analysis/test_with_env_fix.py
+python archived_development/test_scripts/quick_test_vetting.py
+python archived_development/test_scripts/test_achievement_tracking.py
 
-This onboarding session should give you a solid foundation for working with the Enhanced Vetting Agent system. The automated memory orchestration and achievement tracking features make it easy to monitor progress and improvements over time.
+# Check for new achievements
+grep -A 10 "RECENT ACHIEVEMENTS" PROJECT_MEMORY_SYSTEM.md
+
+# Review latest memory analysis
+ls memory_logs/memory_analysis_*.json | tail -1 | xargs cat
+```
+
+## 🤔 Key Questions for Current Session
+
+### **For AI Assistants Starting New Sessions**:
+1. **What is the current status of Task 1.1 Causal Analysis Agent?** (Answer: COMPLETED & PRODUCTION READY)
+2. **What are the immediate development priorities?** (Answer: Task 1.2 implementation, system integration)
+3. **What recent organizational changes have been made?** (Answer: Systematic root cleanup, 62 files organized)
+4. **What is the current project structure?** (Answer: task_updates/ and archived_development/ organization)
+5. **What are the key operational systems?** (Answer: Causal Analysis, Enhanced Vetting, Memory Orchestration)
+
+### **For Human Developers**:
+1. What are the current priorities for the next development phase?
+2. How should new causal insights be integrated with existing workflows?
+3. What are the key metrics we're monitoring for TTFD reduction?
+4. How does the causal analysis system integrate with other SVE components?
+5. What are the upcoming features planned for the causal analysis system?
+
+## 🎯 Session Initialization Principles
+
+### **Memory-Driven Updates**
+This document should be updated whenever:
+- Major tasks are completed (like Task 1.1)
+- System architecture changes significantly
+- New development patterns are identified
+- Project organization is modified
+- Key achievements are recorded in the memory system
+
+### **Reference Integration**
+AI assistants should always:
+1. **Read this document first** to understand current project state
+2. **Check memory system files** for latest updates and achievements
+3. **Review task_updates/** for recent completions and status
+4. **Examine archived_development/** for development process insights
+5. **Validate system status** with appropriate test scripts
+
+### **Continuous Accuracy**
+This document serves as the **single source of truth** for project state and should be continuously updated to reflect:
+- Current system capabilities and status
+- Recent achievements and completions
+- Development priorities and next steps
+- File organization and structure changes
+- Integration points and dependencies
+
+---
+
+**Document Status**: Continuously Updated  
+**Last Major Update**: January 2025 (Task 1.1 Completion & Root Cleanup)  
+**Next Update Trigger**: Task 1.2 completion or major system changes  
+**Memory Integration**: References PROJECT_MEMORY_SYSTEM.md and memory_logs/ for dynamic updates

@@ -232,7 +232,7 @@ This phase is where raw market intelligence is transformed into actionable busin
         This involves setting up the `crewai` framework to orchestrate the collaboration between the synthesis agents.
         *   **Tools:** `file_write_text` (to create/update `scripts/run_crew.py`)
         *   **Workflow Definition:** The `scripts/run_crew.py` will define the `Crew` object, specifying the agents involved, their roles, and the sequence of tasks. It will manage the flow of information, ensuring that the output of one agent serves as the input for the next.
-        *   **Intermediate Storage:** Intermediate results and decisions made by agents can be logged to Supabase for audibility and to facilitate causal analysis later.
+    *   **Intermediate Storage:** Intermediate results and decisions made by agents can be logged to Supabase for audibility and to facilitate causal analysis later.
         *   **User Action:** **You will need to define the specific prompts and tools for each agent within the `crewai` framework. This is where the art of prompt engineering and tool integration comes into play.**
 
 

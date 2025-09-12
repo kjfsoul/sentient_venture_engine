@@ -9,3 +9,4 @@ sve_env/
 # macOS
 .DS_Store
 
+.env.local
